@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-7e!0+ux)zenh9d2-1ldg-*l79bqsus5_m(0_f@aiyqybh@e%n)')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -61,12 +61,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import dj_database_url as _dj_db_url
+
+_DATABASE_URL = config('DATABASE_URL', default='')
+if _DATABASE_URL:
+    DATABASES = {'default': _dj_db_url.config(default=_DATABASE_URL, conn_max_age=600)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -140,8 +146,11 @@ MP_ACCESS_TOKEN = config('MP_ACCESS_TOKEN', default='')
 MP_WEBHOOK_SECRET = config('MP_WEBHOOK_SECRET', default='')   # firma HMAC del webhook
 SITE_DOMAIN = config('SITE_DOMAIN', default='http://127.0.0.1:8000')  # sin / al final
 
+_extra_origins = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
     'http://localhost:8000',
     'https://program-carried-amaretto.ngrok-free.dev',
-]
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+] + [o for o in _extra_origins if o]
