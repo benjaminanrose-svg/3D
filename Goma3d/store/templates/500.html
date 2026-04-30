@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Error del servidor — Gflex3D{% endblock %}
+{% block content %}
+<div style="min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;">
+  <div style="font-size:80px;margin-bottom:20px;">🔧</div>
+  <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(60px,10vw,120px);line-height:1;color:var(--white);">500</h1>
+  <p style="font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,3vw,32px);color:var(--orange);letter-spacing:2px;margin-bottom:12px;">ALGO FALLÓ</p>
+  <p style="color:var(--gray);font-size:15px;max-width:400px;margin-bottom:36px;line-height:1.6;">Hubo un error interno. Ya lo estamos revisando. Intenta de nuevo en unos minutos.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <a href="{% url 'home' %}" class="btn-primary" style="padding:13px 28px;">Ir al inicio</a>
+    <a href="https://wa.me/{{ settings.WHATSAPP_NUMBER }}" class="btn-outline" style="padding:13px 28px;">💬 Contactar</a>
+  </div>
+</div>
+{% endblock %}

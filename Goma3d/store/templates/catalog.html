@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% block title %}Catálogo{% if current_category %} — {{ current_category.name }}{% endif %} — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.catalog-hero{padding:48px 48px 28px;border-bottom:1px solid var(--border);}
+.catalog-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,64px);line-height:1;margin-bottom:6px;}
+.catalog-hero p{color:var(--gray);font-size:14px;}
+.catalog-layout{display:grid;grid-template-columns:256px 1fr;gap:40px;padding:36px 48px 80px;}
+.sidebar{position:sticky;top:96px;align-self:start;}
+.sb-block{margin-bottom:26px;}
+.sb-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:10px;}
+.sb-cats{display:flex;flex-direction:column;gap:2px;}
+.sb-cats a{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;border-radius:8px;font-size:13px;color:var(--gray-light);text-decoration:none;transition:background .15s,color .15s;}
+.sb-cats a:hover,.sb-cats a.active{background:rgba(255,92,0,.1);color:var(--orange);}
+.sb-cats a .n{font-size:11px;color:var(--gray);}
+.sb-search{display:flex;gap:6px;}
+.sb-search input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:9px 11px;font-size:13px;min-width:0;}
+.sb-search input:focus{outline:none;border-color:var(--orange);}
+.sb-search input::placeholder{color:var(--gray);}
+.price-row{display:flex;gap:8px;align-items:center;}
+.price-row input{width:0;flex:1;background:var(--surface);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:8px 10px;font-size:13px;}
+.price-row input:focus{outline:none;border-color:var(--orange);}
+.price-sep{color:var(--gray);font-size:11px;flex-shrink:0;}
+.mat-list{display:flex;flex-direction:column;gap:7px;}
+.mat-item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--gray-light);cursor:pointer;}
+.mat-item input{accent-color:var(--orange);width:14px;height:14px;cursor:pointer;}
+.sort-sel{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:9px 11px;font-size:13px;cursor:pointer;}
+.sort-sel:focus{outline:none;border-color:var(--orange);}
+.sort-sel option{background:var(--dark);}
+.apply-btn{width:100%;background:var(--orange);border:none;color:#fff;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px;transition:background .2s;}
+.apply-btn:hover{background:var(--orange-dim);}
+.clear-link{display:block;text-align:center;color:var(--gray);font-size:12px;text-decoration:none;margin-top:9px;transition:color .2s;}
+.clear-link:hover{color:var(--orange);}
+/* FILTRO TOGGLE MÓVIL */
+.filter-toggle{display:none;width:100%;background:var(--surface);border:1px solid var(--border);color:var(--white);padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;margin-bottom:12px;justify-content:space-between;align-items:center;}
+.filter-toggle-arrow{transition:transform .3s;}
+/* GRID */
+.grid-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
+.grid-count{font-size:13px;color:var(--gray);}
+.grid-count strong{color:var(--white);}
+.page-info{font-size:12px;color:var(--gray);}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+.product-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s;}
+.product-card:hover{transform:translateY(-4px);border-color:rgba(255,92,0,.4);}
+.product-img{height:176px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;background:linear-gradient(135deg,#1e2228,#2a2228);overflow:hidden;}
+.product-img img{width:100%;height:100%;object-fit:cover;}
+.p-badge{position:absolute;top:10px;left:10px;background:rgba(255,92,0,.15);color:var(--orange);border:1px solid rgba(255,92,0,.3);padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.p-3d{position:absolute;top:10px;right:10px;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.3);padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;}
+.product-info{padding:15px;}
+.p-cat{font-size:9px;color:var(--orange);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.p-name{font-weight:600;font-size:14px;margin-bottom:4px;line-height:1.3;}
+.p-compat{font-size:11px;color:var(--gray);margin-bottom:11px;min-height:13px;}
+.p-footer{display:flex;align-items:center;justify-content:space-between;}
+.p-price{font-family:'Bebas Neue',sans-serif;font-size:21px;line-height:1;}
+.p-price small{display:block;font-family:'DM Sans',sans-serif;font-size:10px;color:var(--gray);font-weight:400;margin-top:1px;}
+.btn-add{background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:7px;padding:6px 13px;font-size:12px;cursor:pointer;transition:background .2s,border-color .2s;}
+.btn-add:hover{background:var(--orange);border-color:var(--orange);}
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:48px;flex-wrap:wrap;}
+.pg{background:var(--surface);border:1px solid var(--border);color:var(--gray-light);border-radius:8px;padding:8px 14px;font-size:13px;text-decoration:none;transition:all .2s;cursor:pointer;}
+.pg:hover{border-color:var(--orange);color:var(--orange);}
+.pg.active{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700;}
+.pg.disabled{opacity:.35;pointer-events:none;}
+.empty-state{text-align:center;padding:80px 20px;color:var(--gray);}
+.empty-state .ei{font-size:52px;margin-bottom:14px;}
+.active-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.af-tag{display:flex;align-items:center;gap:6px;background:rgba(255,92,0,.1);border:1px solid rgba(255,92,0,.3);color:var(--orange);border-radius:20px;padding:4px 12px;font-size:12px;}
+.af-tag a{color:var(--orange);text-decoration:none;font-weight:700;opacity:.7;}
+.af-tag a:hover{opacity:1;}
+@media(max-width:960px){
+  .catalog-layout{grid-template-columns:1fr;padding:20px;}
+  .sidebar{position:static;}
+  .catalog-hero{padding:36px 20px 20px;}
+  nav .nav-links{display:none;}
+  .filter-toggle{display:flex;}
+  #filterContent{display:none;}
+  #filterContent.open{display:block;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalog-hero">
+  <div class="breadcrumb" style="padding:0 0 12px;">
+    <a href="{% url 'home' %}">Inicio</a><span>›</span>
+    {% if current_category %}
+      <a href="{% url 'catalog' %}">Catálogo</a><span>›</span>
+      <span style="color:var(--white)">{{ current_category.name }}</span>
+    {% else %}
+      <span style="color:var(--white)">Catálogo</span>
+    {% endif %}
+  </div>
+  <h1>{% if current_category %}{{ current_category.name|upper }}{% else %}CATÁLOGO{% endif %}</h1>
+  <p>Repuestos en poliuretano y caucho fabricados a pedido</p>
+</div>
+
+<div class="catalog-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+
+    <!-- Botón toggle solo visible en móvil -->
+    <button class="filter-toggle" onclick="toggleFilters()" id="filterToggleBtn">
+      <span>🔧 Filtros y búsqueda</span>
+      <span class="filter-toggle-arrow" id="filterArrow">▼</span>
+    </button>
+
+    <div id="filterContent">
+      <form method="get" id="filterForm">
+        {% if current_category %}<input type="hidden" name="cat" value="{{ current_category.slug }}">{% endif %}
+
+        <div class="sb-block">
+          <div class="sb-title">Buscar</div>
+          <div class="sb-search">
+            <input name="q" value="{{ q }}" placeholder="Nombre del producto...">
+          </div>
+        </div>
+
+        <div class="sb-block">
+          <div class="sb-title">Categoría</div>
+          <div class="sb-cats">
+            <a href="{% url 'catalog' %}{% if q %}?q={{ q }}{% endif %}" {% if not current_category %}class="active"{% endif %}>
+              Todas <span class="n">{{ total_count }}</span>
+            </a>
+            {% for cat in categories %}
+            <a href="{% url 'catalog_category' cat.slug %}{% if q %}?q={{ q }}{% endif %}"
+               {% if current_category.slug == cat.slug %}class="active"{% endif %}>
+              {% if cat.icon %}{{ cat.icon }} {% endif %}{{ cat.name }}
+              <span class="n">{{ cat.products.count }}</span>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% if materials %}
+        <div class="sb-block">
+          <div class="sb-title">Material</div>
+          <div class="mat-list">
+            {% for mat in materials %}
+            <label class="mat-item">
+              <input type="radio" name="material" value="{{ mat.id }}"
+                     {% if material_id == mat.id|stringformat:'s' %}checked{% endif %}
+                     onchange="document.getElementById('filterForm').submit()">
+              {{ mat.name }}
+            </label>
+            {% endfor %}
+            {% if material_id %}
+            <a href="?{% if q %}q={{ q }}&{% endif %}" style="font-size:11px;color:var(--gray);margin-top:2px;text-decoration:none;">✕ Quitar filtro material</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="sb-block">
+          <div class="sb-title">Vehículo compatible</div>
+          <input class="form-input" style="padding:9px 11px;font-size:13px;" name="vehiculo" value="{{ vehiculo }}" placeholder="Toyota, Nissan, Kia...">
+        </div>
+
+        <div class="sb-block">
+          <div class="sb-title">Precio (CLP)</div>
+          <div class="price-row">
+            <input type="number" name="precio_min" value="{{ precio_min }}" placeholder="Mín" min="0">
+            <span class="price-sep">—</span>
+            <input type="number" name="precio_max" value="{{ precio_max }}" placeholder="Máx" min="0">
+          </div>
+        </div>
+
+        <div class="sb-block">
+          <div class="sb-title">Ordenar por</div>
+          <select class="sort-sel" name="sort" onchange="document.getElementById('filterForm').submit()">
+            <option value="newest"     {% if sort == 'newest' %}selected{% endif %}>Más recientes</option>
+            <option value="price_asc"  {% if sort == 'price_asc' %}selected{% endif %}>Menor precio primero</option>
+            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Mayor precio primero</option>
+            <option value="name"       {% if sort == 'name' %}selected{% endif %}>Nombre A → Z</option>
+          </select>
+        </div>
+
+        <button type="submit" class="apply-btn">Aplicar filtros</button>
+        <a href="{% url 'catalog' %}" class="clear-link">✕ Limpiar todos los filtros</a>
+      </form>
+    </div>
+  </aside>
+
+  <!-- ── GRID ── -->
+  <div>
+    {% if q or vehiculo or material_id or precio_min or precio_max %}
+    <div class="active-filters">
+      {% if q %}<span class="af-tag">Búsqueda: "{{ q }}" <a href="?{% if vehiculo %}vehiculo={{ vehiculo }}&{% endif %}{% if material_id %}material={{ material_id }}&{% endif %}{% if precio_min %}precio_min={{ precio_min }}&{% endif %}{% if precio_max %}precio_max={{ precio_max }}&{% endif %}sort={{ sort }}">✕</a></span>{% endif %}
+      {% if vehiculo %}<span class="af-tag">Vehículo: {{ vehiculo }} <a href="?{% if q %}q={{ q }}&{% endif %}{% if material_id %}material={{ material_id }}&{% endif %}sort={{ sort }}">✕</a></span>{% endif %}
+      {% if material_id %}<span class="af-tag">Material activo <a href="?{% if q %}q={{ q }}&{% endif %}{% if vehiculo %}vehiculo={{ vehiculo }}&{% endif %}sort={{ sort }}">✕</a></span>{% endif %}
+      {% if precio_min or precio_max %}<span class="af-tag">Precio filtrado <a href="?{% if q %}q={{ q }}&{% endif %}{% if vehiculo %}vehiculo={{ vehiculo }}&{% endif %}{% if material_id %}material={{ material_id }}&{% endif %}sort={{ sort }}">✕</a></span>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="grid-header">
+      <span class="grid-count">
+        <strong>{{ total_count }}</strong> producto{{ total_count|pluralize }}
+        {% if q %} para "<strong>{{ q }}</strong>"{% endif %}
+        {% if vehiculo %} · compatible con "<strong>{{ vehiculo }}</strong>"{% endif %}
+      </span>
+      <span class="page-info">Pág. {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    </div>
+
+    {% if page_obj.object_list %}
+    <div class="products-grid">
+      {% for product in page_obj %}
+      <div class="product-card anim" onclick="window.location='{% url 'product_detail' product.slug %}'">
+        <div class="product-img">
+          {% if product.thumbnail %}<img src="{{ product.thumbnail.url }}" alt="{{ product.name }}">
+          {% else %}⚙️{% endif %}
+          {% if product.status == 'on_request' %}<div class="p-badge">A pedido</div>{% endif %}
+          {% if product.get_model_3d %}<div class="p-3d">🔄 3D</div>{% endif %}
+        </div>
+        <div class="product-info">
+          <div class="p-cat">{{ product.category }}</div>
+          <div class="p-name">{{ product.name }}</div>
+          <div class="p-compat">{{ product.compatible_vehicles|truncatewords:4 }}</div>
+          <div class="p-footer">
+            <div class="p-price">
+              ${{ product.base_price|floatformat:0 }}
+              <small>{% for m in product.materials.all %}{{ m.get_material_type_display }}{% if not forloop.last %}/{% endif %}{% endfor %}</small>
+            </div>
+            <button class="btn-add" onclick="event.stopPropagation();addToCart('{{ product.pk }}')">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    {% with base_params="q="|add:q|add:"&vehiculo="|add:vehiculo|add:"&material="|add:material_id|add:"&precio_min="|add:precio_min|add:"&precio_max="|add:precio_max|add:"&sort="|add:sort %}
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+      <a class="pg" href="?{{ base_params }}&page={{ page_obj.previous_page_number }}">← Anterior</a>
+      {% else %}<span class="pg disabled">← Anterior</span>{% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <span class="pg active">{{ num }}</span>
+        {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+          <a class="pg" href="?{{ base_params }}&page={{ num }}">{{ num }}</a>
+        {% elif num == 1 or num == page_obj.paginator.num_pages %}
+          <a class="pg" href="?{{ base_params }}&page={{ num }}">{{ num }}</a>
+        {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+          <span style="color:var(--gray);padding:0 4px;">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+      <a class="pg" href="?{{ base_params }}&page={{ page_obj.next_page_number }}">Siguiente →</a>
+      {% else %}<span class="pg disabled">Siguiente →</span>{% endif %}
+    </div>
+    {% endwith %}
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+      <div class="ei">🔍</div>
+      <p>No se encontraron productos con esos filtros.</p>
+      <a href="{% url 'catalog' %}" class="btn-outline" style="padding:11px 28px;margin-top:16px;display:inline-block;">Ver todo el catálogo</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFilters() {
+  const content = document.getElementById('filterContent');
+  const arrow   = document.getElementById('filterArrow');
+  content.classList.toggle('open');
+  arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+</script>
+{% endblock %}

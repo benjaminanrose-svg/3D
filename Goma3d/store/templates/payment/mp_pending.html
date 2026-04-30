@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Pago en proceso — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.pay-wrap{max-width:600px;margin:0 auto;padding:60px 48px 80px;text-align:center;}
+.pay-icon{font-size:72px;margin-bottom:20px;animation:spin 3s linear infinite;}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.pay-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,64px);margin-bottom:8px;}
+.pay-sub{color:var(--gray-light);font-size:15px;margin-bottom:32px;line-height:1.6;}
+.order-num{display:inline-block;font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--orange);background:rgba(255,92,0,.1);border:1px solid rgba(255,92,0,.3);border-radius:10px;padding:8px 20px;margin-bottom:24px;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px;}
+.action-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="pay-wrap">
+  <div class="pay-icon">⏳</div>
+  <h1 class="pay-title">PAGO EN PROCESO</h1>
+  <p class="pay-sub">
+    Tu pago está siendo procesado por MercadoPago. Esto puede tomar algunas horas
+    (especialmente si pagaste en efectivo o con depósito bancario).
+  </p>
+  <div class="order-num">{{ order.order_number }}</div>
+
+  <div class="info-card" style="text-align:left;">
+    <p style="font-size:14px;color:var(--gray-light);line-height:1.6;">
+      Una vez confirmado el pago, recibirás un email y comenzaremos la fabricación.
+      No necesitas hacer nada más.
+    </p>
+  </div>
+
+  <div class="action-row">
+    <a href="https://wa.me/{{ settings.WHATSAPP_NUMBER }}?text=Hola%20Gflex3D%2C%20pagué%20el%20pedido%20{{ order.order_number }}%20y%20está%20pendiente"
+       target="_blank" class="btn-outline" style="padding:12px 24px;">💬 Consultar por WhatsApp</a>
+    <a href="{% url 'home' %}" class="btn-primary" style="padding:12px 24px;">Ir al inicio</a>
+  </div>
+</div>
+{% endblock %}

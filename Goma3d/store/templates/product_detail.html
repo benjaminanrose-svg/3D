@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;padding:40px 48px 80px;align-items:start;}
+/* GALERÍA */
+.product-gallery{position:static;align-self:start;width:100%;}
+.gallery-main{background:var(--surface);border:1px solid var(--border);border-radius:16px;height:400px;max-height:400px;display:flex;align-items:center;justify-content:center;font-size:100px;overflow:hidden;margin-bottom:10px;position:relative;}
+.gallery-main img{width:100%;height:100%;object-fit:cover;transition:opacity .25s;}
+.gallery-main model-viewer{width:100%;height:100%;background:transparent;}
+.view-toggle{position:absolute;bottom:12px;right:12px;display:flex;gap:6px;z-index:10;}
+.vt-btn{background:rgba(10,10,11,.8);border:1px solid var(--border);color:var(--gray-light);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;backdrop-filter:blur(8px);}
+.vt-btn.active,.vt-btn:hover{background:var(--orange);color:#fff;border-color:var(--orange);}
+.gallery-thumbs{display:flex;gap:8px;flex-wrap:wrap;}
+.thumb{width:68px;height:68px;background:var(--surface);border:2px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:24px;transition:border-color .2s;flex-shrink:0;}
+.thumb:hover,.thumb.active{border-color:var(--orange);}
+.thumb img{width:100%;height:100%;object-fit:cover;}
+.thumb-3d{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.4);color:#a78bfa;font-size:20px;}
+/* INFO */
+.detail-category{font-size:11px;color:var(--orange);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.detail-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4vw,52px);line-height:1.05;margin-bottom:10px;}
+.detail-sku{font-family:'DM Mono',monospace;font-size:12px;color:var(--gray);margin-bottom:18px;}
+.detail-price{font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--white);margin-bottom:22px;line-height:1;}
+.detail-price small{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--gray);font-weight:400;margin-left:8px;}
+.detail-desc{color:var(--gray-light);font-size:15px;line-height:1.7;margin-bottom:26px;}
+.detail-section-title{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:10px;}
+.variants-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;}
+.variant-btn{background:var(--surface);border:1px solid var(--border);color:var(--gray-light);border-radius:8px;padding:7px 13px;font-size:13px;cursor:pointer;transition:all .2s;}
+.variant-btn:hover,.variant-btn.selected{background:rgba(255,92,0,.1);border-color:var(--orange);color:var(--white);}
+.qty-control{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.qty-large{width:36px;height:36px;background:var(--surface);border:1px solid var(--border);color:var(--white);border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.qty-large:hover{background:var(--surface2);}
+.qty-val{font-family:'Bebas Neue',sans-serif;font-size:24px;min-width:30px;text-align:center;}
+.action-btns{display:flex;gap:12px;margin-bottom:28px;}
+.action-btns .btn-primary,.action-btns .btn-outline{flex:1;padding:13px;font-size:14px;text-align:center;}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.meta-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;}
+.meta-label{font-size:10px;color:var(--gray);margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase;}
+.meta-value{font-size:14px;font-weight:500;}
+.compat-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--gray-light);line-height:2;}
+/* RELATED */
+.related-section{padding:0 48px 80px;}
+.related-title{font-family:'Bebas Neue',sans-serif;font-size:36px;margin-bottom:24px;}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.related-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s;text-decoration:none;color:var(--white);}
+.related-card:hover{transform:translateY(-3px);border-color:rgba(255,92,0,.4);}
+.related-img{height:130px;display:flex;align-items:center;justify-content:center;font-size:44px;background:linear-gradient(135deg,#1e2228,#2a2228);overflow:hidden;}
+.related-img img{width:100%;height:100%;object-fit:cover;}
+.related-info{padding:12px;}
+.related-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.related-price{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--orange);}
+@media(max-width:900px){.detail-layout{grid-template-columns:1fr;padding:20px;gap:28px;}.related-section{padding:0 20px 60px;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+  <a href="{% url 'home' %}">Inicio</a><span>›</span>
+  <a href="{% url 'catalog' %}">Catálogo</a><span>›</span>
+  {% if product.category %}<a href="{% url 'catalog_category' product.category.slug %}">{{ product.category }}</a><span>›</span>{% endif %}
+  <span style="color:var(--white)">{{ product.name }}</span>
+</div>
+
+<div class="detail-layout">
+
+  <!-- ── GALERÍA ── -->
+  <div class="product-gallery">
+    <div class="gallery-main" id="mainViewer">
+      {% if product.thumbnail %}
+        <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}" id="mainImgEl">
+      {% else %}
+        <span id="mainEmoji">⚙️</span>
+      {% endif %}
+
+      <!-- Toggle 3D si hay modelo -->
+      {% if product.get_model_3d %}
+      <div class="view-toggle">
+        <button class="vt-btn active" id="btnFoto" onclick="showPhoto()">📷 Foto</button>
+        <button class="vt-btn" id="btn3D" onclick="show3D()">🔄 3D</button>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Miniaturas -->
+    <div class="gallery-thumbs" id="thumbsRow">
+      {% if product.thumbnail %}
+      <div class="thumb active" onclick="selectThumb(this, '{{ product.thumbnail.url }}', 'img')">
+        <img src="{{ product.thumbnail.url }}" alt="">
+      </div>
+      {% endif %}
+      {% for img in images %}
+      <div class="thumb" onclick="selectThumb(this, '{{ img.image.url }}', 'img')">
+        <img src="{{ img.image.url }}" alt="{{ img.alt_text }}">
+      </div>
+      {% endfor %}
+      {% if product.get_model_3d %}
+      <div class="thumb thumb-3d" onclick="show3D(); this.classList.add('active');" title="Ver en 3D">🔄</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── INFO ── -->
+  <div class="detail-info">
+    <div class="detail-category">{{ product.category }}</div>
+    <h1 class="detail-name">{{ product.name }}</h1>
+    <div class="detail-sku">SKU: {{ product.sku }}</div>
+    <div class="detail-price" id="displayPrice">
+      ${{ product.base_price|floatformat:0 }}<small>/ unidad</small>
+    </div>
+    <p class="detail-desc">{{ product.description }}</p>
+
+    {% if variants %}
+    <div class="detail-section-title">Variantes disponibles</div>
+    <div class="variants-grid">
+      {% for v in variants %}
+      <button class="variant-btn" data-vid="{{ v.pk }}" data-price="{{ v.get_price }}"
+              onclick="selectVariant(this)">
+        {% if v.material %}{{ v.material.name }}{% endif %}
+        {% if v.color %} · {{ v.color }}{% endif %}
+        {% if v.size_label %} · {{ v.size_label }}{% endif %}
+        {% if v.price_modifier != 0 %}({% if v.price_modifier > 0 %}+{% endif %}${{ v.price_modifier|floatformat:0 }}){% endif %}
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="detail-section-title">Cantidad</div>
+    <div class="qty-control">
+      <button class="qty-large" onclick="chgQty(-1)">−</button>
+      <span class="qty-val" id="qtyVal">{{ product.min_order_qty }}</span>
+      <button class="qty-large" onclick="chgQty(1)">+</button>
+      <span style="font-size:12px;color:var(--gray)">mín. {{ product.min_order_qty }}</span>
+    </div>
+
+    <div class="action-btns">
+      <button class="btn-primary" onclick="doAddToCart()">🛒 Agregar al carrito</button>
+      <a href="https://wa.me/{{ request.META|default:'' }}?text={{ product.name|urlencode }}%20-%20Consulta"
+         style="display:none" id="waLink"></a>
+      <a href="https://wa.me/56912345678?text=Hola%20Gflex3D%2C%20me%20interesa%20{{ product.name|urlencode }}" target="_blank" class="btn-outline">💬 WhatsApp</a>
+    </div>
+
+    <!-- DATOS TÉCNICOS -->
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">⏱ Fabricación</div>
+        <div class="meta-value">{{ product.production_days }} días hábiles</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">📦 Envío</div>
+        <div class="meta-value">Todo Chile</div>
+      </div>
+      {% if product.width_mm %}
+      <div class="meta-item">
+        <div class="meta-label">📐 Dimensiones</div>
+        <div class="meta-value">{{ product.width_mm }}×{{ product.height_mm }}×{{ product.depth_mm }} mm</div>
+      </div>
+      {% endif %}
+      {% if product.weight_g %}
+      <div class="meta-item">
+        <div class="meta-label">⚖️ Peso</div>
+        <div class="meta-value">{{ product.weight_g }} g</div>
+      </div>
+      {% endif %}
+      {% if product.materials.all %}
+      <div class="meta-item" style="grid-column:1/-1;">
+        <div class="meta-label">🧪 Materiales</div>
+        <div class="meta-value">{% for m in product.materials.all %}{{ m }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if product.compatible_vehicles %}
+    <div class="detail-section-title">Vehículos compatibles</div>
+    <div class="compat-box">
+      {% for line in product.compatible_vehicles.splitlines %}
+        {% if line %}✓ {{ line }}<br>{% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if related %}
+<section class="related-section">
+  <div class="related-title">PRODUCTOS RELACIONADOS</div>
+  <div class="related-grid">
+    {% for p in related %}
+    <a href="{% url 'product_detail' p.slug %}" class="related-card anim">
+      <div class="related-img">
+        {% if p.thumbnail %}<img src="{{ p.thumbnail.url }}" alt="{{ p.name }}">{% else %}⚙️{% endif %}
+      </div>
+      <div class="related-info">
+        <div class="related-name">{{ p.name }}</div>
+        <div class="related-price">${{ p.base_price|floatformat:0 }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if product.get_model_3d %}
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+{% endif %}
+<script>
+const PROD_ID  = '{{ product.pk }}';
+const MIN_QTY  = {{ product.min_order_qty }};
+const MODEL3D  = '{{ product.get_model_3d|default:"" }}';
+const MAIN_IMG = '{% if product.thumbnail %}{{ product.thumbnail.url }}{% endif %}';
+
+let qty             = MIN_QTY;
+let selectedVariant = null;
+let viewing3D       = false;
+
+function chgQty(d) {
+  qty = Math.max(MIN_QTY, qty + d);
+  document.getElementById('qtyVal').textContent = qty;
+}
+
+function selectVariant(btn) {
+  document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedVariant = btn.dataset.vid;
+  const price = parseFloat(btn.dataset.price);
+  document.getElementById('displayPrice').innerHTML =
+    '$' + Math.round(price).toLocaleString('es-CL') + '<small>/ unidad</small>';
+}
+
+function doAddToCart() {
+  addToCart(PROD_ID, qty, selectedVariant);
+}
+
+// ── GALERÍA ──────────────────────────────────────────────────────
+function selectThumb(el, src, type) {
+  document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (type === 'img') showPhoto(src);
+}
+
+function showPhoto(src) {
+  viewing3D = false;
+  const viewer = document.getElementById('mainViewer');
+  // Quitar model-viewer si existe
+  const mv = viewer.querySelector('model-viewer');
+  if (mv) mv.remove();
+  // Mostrar imagen
+  let img = viewer.querySelector('img');
+  if (!img) {
+    const emoji = viewer.querySelector('#mainEmoji');
+    if (emoji) emoji.remove();
+    img = document.createElement('img');
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+    viewer.prepend(img);
+  }
+  img.style.display = 'block';
+  img.src = src || MAIN_IMG;
+  // Actualizar botones
+  document.getElementById('btnFoto')?.classList.add('active');
+  document.getElementById('btn3D')?.classList.remove('active');
+}
+
+function show3D() {
+  if (!MODEL3D) return;
+  viewing3D = true;
+  const viewer = document.getElementById('mainViewer');
+  // Ocultar imagen
+  const img = viewer.querySelector('img');
+  if (img) img.style.display = 'none';
+  const emoji = viewer.querySelector('#mainEmoji');
+  if (emoji) emoji.style.display = 'none';
+  // Crear model-viewer si no existe
+  let mv = viewer.querySelector('model-viewer');
+  if (!mv) {
+    mv = document.createElement('model-viewer');
+    mv.setAttribute('src', MODEL3D);
+    mv.setAttribute('alt', '{{ product.name }}');
+    mv.setAttribute('auto-rotate', '');
+    mv.setAttribute('camera-controls', '');
+    mv.setAttribute('shadow-intensity', '1');
+    mv.setAttribute('exposure', '0.8');
+    mv.style.cssText = 'width:100%;height:100%;background:transparent;';
+    viewer.prepend(mv);
+  }
+  mv.style.display = 'block';
+  // Actualizar botones
+  document.getElementById('btn3D')?.classList.add('active');
+  document.getElementById('btnFoto')?.classList.remove('active');
+}
+</script>
+{% endblock %}

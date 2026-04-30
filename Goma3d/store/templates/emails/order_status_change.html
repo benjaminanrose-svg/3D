@@ -1,0 +1,39 @@
+{% extends 'emails/base_email.html' %}
+{% block header_sub %}Actualización de tu pedido{% endblock %}
+{% block body %}
+<div class="greeting">{{ status_title }}</div>
+<p class="intro">{{ status_msg }}</p>
+
+<div class="tag">{{ order.order_number }}</div>
+
+<div class="divider"></div>
+
+<div class="order-box">
+  <div class="order-row"><span class="label">Pedido</span><span class="value" style="font-family:monospace;color:#ff5c00;">{{ order.order_number }}</span></div>
+  <div class="order-row"><span class="label">Estado</span><span class="value">{{ order.get_status_display }}</span></div>
+  <div class="order-row"><span class="label">Total</span><span class="value">${{ order.total_amount|floatformat:0 }} CLP</span></div>
+  <div class="order-row"><span class="label">Destinatario</span><span class="value">{{ order.full_name }}</span></div>
+  <div class="order-row"><span class="label">Dirección</span><span class="value">{{ order.address }}, {{ order.city }}</span></div>
+</div>
+
+{% if tracking_number %}
+<div class="section-title">📦 Número de seguimiento</div>
+<div style="background:#f9f9fa;border:2px solid #ffe0cc;border-radius:8px;padding:16px;text-align:center;margin-bottom:24px;">
+  <div style="font-family:monospace;font-size:22px;font-weight:700;color:#ff5c00;letter-spacing:2px;">{{ tracking_number }}</div>
+  <div style="font-size:12px;color:#888;margin-top:4px;">Usa este código para rastrear tu envío en el sitio del transportista</div>
+</div>
+{% endif %}
+
+{% if order.status == 'shipped' %}
+<div class="step-box">
+  <div class="step"><div class="step-num">1</div><div class="step-text">Tu pedido fue despachado y está en manos de Chilexpress.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Recibirás el paquete en los días hábiles acordados según tu región.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Si tienes dudas, escríbenos por WhatsApp indicando tu número de pedido.</div></div>
+</div>
+{% endif %}
+
+<div class="wa-box">
+  <div class="wa-icon">💬</div>
+  <div class="wa-text">¿Tienes preguntas sobre tu pedido? <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Gflex3D%2C%20tengo%20una%20consulta%20sobre%20mi%20pedido%20{{ order.order_number }}">Escríbenos por WhatsApp</a></div>
+</div>
+{% endblock %}

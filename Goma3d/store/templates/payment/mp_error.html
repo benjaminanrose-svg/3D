@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Error de pago — Gflex3D{% endblock %}
+{% block content %}
+<div style="max-width:580px;margin:0 auto;padding:60px 48px;text-align:center;">
+  <div style="font-size:64px;margin-bottom:20px;">⚠️</div>
+  <h1 style="font-family:'Bebas Neue',sans-serif;font-size:52px;margin-bottom:8px;">ERROR DE PAGO</h1>
+  <p style="color:var(--gray-light);font-size:15px;line-height:1.7;margin-bottom:12px;">
+    Ocurrió un problema al conectar con MercadoPago. Tu pedido está guardado.
+  </p>
+  {% if error %}
+  <p style="font-family:'DM Mono',monospace;font-size:12px;color:var(--gray);background:var(--surface);padding:10px 14px;border-radius:8px;margin-bottom:28px;">{{ error }}</p>
+  {% endif %}
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <a href="{% url 'mp_pay' order.order_number %}" class="btn-primary" style="padding:13px 24px;">Reintentar</a>
+    <a href="{% url 'order_confirmation' order.order_number %}" class="btn-outline" style="padding:13px 24px;">🏦 Pagar por transferencia</a>
+  </div>
+</div>
+{% endblock %}

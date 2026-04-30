@@ -1,0 +1,33 @@
+{% extends 'emails/base_email.html' %}
+{% block header_sub %}Solicitud de pieza a medida recibida{% endblock %}
+{% block body %}
+<div class="greeting">📐 Recibimos tu solicitud, {{ obj.full_name }}!</div>
+<p class="intro">Gracias por contactarnos. Revisaremos tu solicitud y te enviaremos una cotización sin costo en menos de <strong>24 horas hábiles</strong>.</p>
+
+<div class="section-title">Tu solicitud</div>
+<div class="order-box">
+  <div class="order-row"><span class="label">Vehículo</span><span class="value">{{ obj.vehicle_make }} {{ obj.vehicle_model }}{% if obj.vehicle_year %} ({{ obj.vehicle_year }}){% endif %}</span></div>
+  <div class="order-row"><span class="label">Pieza solicitada</span><span class="value">{{ obj.part_description }}</span></div>
+  <div class="order-row"><span class="label">Cantidad</span><span class="value">{{ obj.quantity }} unidad{{ obj.quantity|pluralize }}</span></div>
+  {% if obj.preferred_material %}<div class="order-row"><span class="label">Material preferido</span><span class="value">{{ obj.preferred_material }}</span></div>{% endif %}
+  <div class="order-row"><span class="label">Fecha</span><span class="value">{{ obj.created_at|date:"d/m/Y H:i" }}</span></div>
+</div>
+
+<div class="section-title">¿Qué sigue?</div>
+<div class="step-box">
+  <div class="step"><div class="step-num">1</div><div class="step-text">Nuestro equipo revisa tu solicitud y hace el modelado 3D de la pieza.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Te enviamos la cotización por <strong>email y/o WhatsApp</strong> en menos de 24 hrs hábiles.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Apruebas y fabricamos en <strong>5–10 días hábiles</strong>.</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text">Enviamos a todo Chile con seguimiento.</div></div>
+</div>
+
+<div class="wa-box">
+  <div class="wa-icon">💬</div>
+  <div class="wa-text">¿Tienes fotos o más detalles de la pieza? Envíalos directamente por <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Gflex3D%2C%20tengo%20una%20solicitud%20para%20{{ obj.vehicle_make }}%20{{ obj.vehicle_model }}">WhatsApp — toca aquí</a></div>
+</div>
+
+{% if obj.additional_notes %}
+<div class="section-title">Tus notas</div>
+<p style="font-size:14px;color:#555;background:#f9f9fa;padding:12px 16px;border-radius:8px;">{{ obj.additional_notes }}</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% block title %}Checkout — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.checkout-layout{display:grid;grid-template-columns:1fr 390px;gap:40px;padding:40px 48px 80px;max-width:1200px;margin:0 auto;}
+.checkout-title{font-family:'Bebas Neue',sans-serif;font-size:42px;margin-bottom:30px;}
+.co-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px;margin-bottom:18px;}
+.co-stitle{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.pay-opts{display:flex;flex-direction:column;gap:9px;}
+.pay-opt{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;cursor:pointer;transition:border-color .2s;}
+.pay-opt:has(input:checked){border-color:var(--orange);background:rgba(255,92,0,.06);}
+.pay-opt input[type=radio]{accent-color:var(--orange);width:15px;height:15px;}
+.pay-name{font-size:14px;font-weight:600;}
+.pay-desc{font-size:12px;color:var(--gray);margin-top:2px;}
+.notif-opts{display:flex;gap:8px;flex-wrap:wrap;}
+.notif-opt{flex:1;min-width:110px;display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;cursor:pointer;font-size:13px;transition:border-color .2s;}
+.notif-opt:has(input:checked){border-color:var(--orange);}
+.notif-opt input[type=radio]{accent-color:var(--orange);}
+
+/* SHIPPING BOX */
+.shipping-box{display:flex;justify-content:space-between;align-items:center;background:rgba(255,92,0,.06);border:1px solid rgba(255,92,0,.2);border-radius:10px;padding:13px 16px;margin-top:14px;}
+.shipping-info-text{font-size:13px;color:var(--gray-light);line-height:1.5;}
+.shipping-info-text strong{color:var(--white);display:block;margin-bottom:2px;}
+.shipping-price-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--orange);}
+.shipping-loading{color:var(--gray);font-size:13px;padding:10px 0;display:none;}
+
+/* RESUMEN */
+.summary-sticky{position:sticky;top:96px;align-self:start;}
+.summary-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;}
+.summary-stitle{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sum-item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.sum-item:last-of-type{border-bottom:none;}
+.sum-item-name{font-size:13px;font-weight:500;}
+.sum-item-meta{font-size:11px;color:var(--gray);margin-top:2px;}
+.sum-item-price{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--orange);white-space:nowrap;}
+.sum-line{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;}
+.sum-total{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);margin-top:6px;}
+.sum-total-label{font-size:14px;font-weight:600;}
+.sum-total-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--orange);}
+
+/* CUPÓN */
+.coupon-box{display:flex;gap:8px;margin-top:4px;}
+.coupon-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:10px 14px;font-size:14px;text-transform:uppercase;letter-spacing:1px;}
+.coupon-input:focus{outline:none;border-color:var(--orange);}
+.coupon-input::placeholder{text-transform:none;letter-spacing:0;}
+.coupon-btn{background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.coupon-btn:hover{border-color:var(--orange);color:var(--orange);}
+.coupon-ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#22c55e;display:none;align-items:center;justify-content:space-between;}
+.coupon-error{font-size:12px;color:#ef4444;margin-top:4px;display:none;}
+
+.badges{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.badge-item{font-size:11px;color:var(--gray);}
+.errors-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px 14px;margin-bottom:18px;}
+.errors-box p{font-size:13px;color:#ef4444;margin-bottom:3px;}
+@media(max-width:960px){.checkout-layout{grid-template-columns:1fr;padding:20px;}.summary-sticky{position:static;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-layout">
+  <div>
+    <h1 class="checkout-title">FINALIZAR PEDIDO</h1>
+
+    {% if form.errors %}
+    <div class="errors-box">
+      {% for field, errors in form.errors.items %}
+        {% for err in errors %}<p>{{ field }}: {{ err }}</p>{% endfor %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" id="checkoutForm">
+      {% csrf_token %}
+
+      <!-- CONTACTO -->
+      <div class="co-section">
+        <div class="co-stitle">📋 Datos de contacto</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre completo *</label>
+            <input class="form-input" name="full_name" value="{{ form.full_name.value|default:'' }}" type="text" required placeholder="Tu nombre completo">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono *</label>
+            <input class="form-input" name="phone" value="{{ form.phone.value|default:'' }}" type="tel" required placeholder="+56 9 XXXX XXXX">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input class="form-input" name="email" value="{{ form.email.value|default:'' }}" type="email" required placeholder="tu@email.cl">
+        </div>
+      </div>
+
+      <!-- ENVÍO -->
+      <div class="co-section">
+        <div class="co-stitle">📦 Dirección de envío</div>
+        <div class="form-group">
+          <label class="form-label">Dirección *</label>
+          <textarea class="form-input" name="address" rows="2" required placeholder="Calle, número, depto/casa">{{ form.address.value|default:'' }}</textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ciudad *</label>
+            <input class="form-input" name="city" value="{{ form.city.value|default:'' }}" type="text" required placeholder="Santiago">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Región *</label>
+            <select class="form-input" name="region" id="regionSelect" required onchange="updateShipping(this.value)">
+              {% for val, label in form.fields.region.choices %}
+              <option value="{{ val }}" {% if form.region.value == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="max-width:180px;">
+          <label class="form-label">Código postal</label>
+          <input class="form-input" name="postal_code" value="{{ form.postal_code.value|default:'' }}" type="text" placeholder="7500000">
+        </div>
+
+        <!-- COSTO DE ENVÍO CALCULADO EN TIEMPO REAL -->
+        <div class="shipping-loading" id="shippingLoading">⏳ Calculando costo de envío...</div>
+        <div class="shipping-box" id="shippingBox">
+          <div class="shipping-info-text">
+            <strong id="shippingCarrier">{{ shipping_carrier }}</strong>
+            <span id="shippingDays">Entrega estimada: {{ shipping_dias }} día{{ shipping_dias|pluralize }} hábil{{ shipping_dias|pluralize:"es" }}</span>
+          </div>
+          <div class="shipping-price-val" id="shippingPrice">${{ shipping|floatformat:0 }}</div>
+        </div>
+      </div>
+
+      <!-- MÉTODO DE PAGO -->
+      <div class="co-section">
+        <div class="co-stitle">💳 Método de pago</div>
+        <div class="pay-opts">
+          <label class="pay-opt">
+            <input type="radio" name="payment_method" value="bank_transfer"
+                   {% if not form.payment_method.value or form.payment_method.value == 'bank_transfer' %}checked{% endif %}>
+            <div style="font-size:22px;">🏦</div>
+            <div><div class="pay-name">Transferencia bancaria</div><div class="pay-desc">Banco Estado · Confirmación en 1-2 hrs hábiles</div></div>
+          </label>
+          <label class="pay-opt">
+            <input type="radio" name="payment_method" value="mercadopago"
+                   {% if form.payment_method.value == 'mercadopago' %}checked{% endif %}>
+            <div style="font-size:22px;">💰</div>
+            <div><div class="pay-name">MercadoPago</div><div class="pay-desc">Débito y crédito · Cuotas disponibles</div></div>
+          </label>
+          <label class="pay-opt">
+            <input type="radio" name="payment_method" value="webpay"
+                   {% if form.payment_method.value == 'webpay' %}checked{% endif %}>
+            <div style="font-size:22px;">🔒</div>
+            <div><div class="pay-name">WebPay / Transbank</div><div class="pay-desc">Tarjeta chilena · Pago 100% seguro</div></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- NOTIFICACIONES -->
+      <div class="co-section">
+        <div class="co-stitle">🔔 Cómo quieres recibir novedades</div>
+        <div class="notif-opts">
+          <label class="notif-opt"><input type="radio" name="notification_method" value="email" {% if not form.notification_method.value or form.notification_method.value == 'email' %}checked{% endif %}> 📧 Email</label>
+          <label class="notif-opt"><input type="radio" name="notification_method" value="whatsapp" {% if form.notification_method.value == 'whatsapp' %}checked{% endif %}> 💬 WhatsApp</label>
+          <label class="notif-opt"><input type="radio" name="notification_method" value="both" {% if form.notification_method.value == 'both' %}checked{% endif %}> 📲 Ambos</label>
+        </div>
+      </div>
+
+
+      <!-- CUPÓN -->
+      <div class="co-section">
+        <div class="co-stitle">🎟 Cupón de descuento</div>
+        {% if coupon_code %}
+        <div class="coupon-ok" style="display:flex;">
+          <span>✅ <strong>{{ coupon_code }}</strong> — Descuento: ${{ coupon_discount|floatformat:0 }}</span>
+          <a href="{% url 'save_coupon' %}?code=" style="color:#ef4444;font-size:12px;text-decoration:none;" onclick="removeCoupon(event)">✕ Quitar</a>
+        </div>
+        {% else %}
+        <div class="coupon-box">
+          <input class="coupon-input" id="couponInput" placeholder="Ingresa tu código" maxlength="30">
+          <button class="coupon-btn" type="button" onclick="applyCoupon()">Aplicar</button>
+        </div>
+        <div class="coupon-error" id="couponError"></div>
+        {% endif %}
+      </div>
+
+      <!-- NOTAS -->
+      <div class="co-section">
+        <div class="co-stitle">📝 Notas del pedido (opcional)</div>
+        <textarea class="form-input" name="notes" rows="2" placeholder="Instrucciones especiales de entrega...">{{ form.notes.value|default:'' }}</textarea>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width:100%;padding:15px;font-size:15px;">
+        Confirmar pedido →
+      </button>
+      <p style="text-align:center;font-size:12px;color:var(--gray);margin-top:10px;">
+        Al confirmar aceptas nuestros términos. Cada pedido se fabrica a pedido.
+      </p>
+    </form>
+  </div>
+
+  <!-- RESUMEN LATERAL -->
+  <div class="summary-sticky">
+    <div class="summary-card">
+      <div class="summary-stitle">Resumen del pedido</div>
+
+      {% for item in cart_items %}
+      <div class="sum-item">
+        <div>
+          <div class="sum-item-name">{{ item.product.name }}</div>
+          <div class="sum-item-meta">{% if item.variant %}{{ item.variant.material }} · {% endif %}× {{ item.qty }}</div>
+        </div>
+        <div class="sum-item-price">${{ item.subtotal|floatformat:0 }}</div>
+      </div>
+      {% endfor %}
+
+      <div style="margin-top:14px;">
+        <div class="sum-line">
+          <span style="color:var(--gray)">Subtotal productos</span>
+          <span>${{ cart_subtotal|floatformat:0 }}</span>
+        </div>
+        <div class="sum-line">
+          <span style="color:var(--gray)">Envío</span>
+          <span id="summaryShipping">${{ shipping|floatformat:0 }}</span>
+        </div>
+        {% if coupon_discount %}
+        <div class="sum-line" style="color:#22c55e;">
+          <span>🎟 Descuento</span>
+          <span>−${{ coupon_discount|floatformat:0 }}</span>
+        </div>
+        {% endif %}
+        <div class="sum-total">
+          <span class="sum-total-label">Total</span>
+          <span class="sum-total-val" id="summaryTotal">${{ grand_total|floatformat:0 }}</span>
+        </div>
+      </div>
+
+      <div class="badges">
+        <span class="badge-item">🔒 Pago seguro</span>
+        <span class="badge-item">📦 Envío a todo Chile</span>
+        <span class="badge-item">✅ Garantía</span>
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <a href="{% url 'whatsapp_order' %}" class="btn-outline" style="width:100%;text-align:center;padding:11px;display:block;font-size:13px;">
+        📱 O pedir por WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const SUBTOTAL = {{ cart_subtotal|floatformat:0 }};
+const ENVIO_URL = '{% url "calcular_envio" %}';
+
+async function updateShipping(region) {
+  if (!region) return;
+  document.getElementById('shippingLoading').style.display = 'block';
+  document.getElementById('shippingBox').style.display    = 'none';
+  try {
+    const r = await fetch(`${ENVIO_URL}?region=${encodeURIComponent(region)}`);
+    const d = await r.json();
+    if (d.ok) {
+      document.getElementById('shippingCarrier').textContent = d.carrier;
+      document.getElementById('shippingDays').textContent =
+        `Entrega estimada: ${d.dias} día${d.dias > 1 ? 's' : ''} hábil${d.dias > 1 ? 'es' : ''}`;
+      const fmt = n => '$' + Math.round(n).toLocaleString('es-CL');
+      document.getElementById('shippingPrice').textContent  = fmt(d.costo);
+      document.getElementById('summaryShipping').textContent = fmt(d.costo);
+      document.getElementById('summaryTotal').textContent    = fmt(SUBTOTAL + d.costo);
+    }
+  } catch(e) {}
+  document.getElementById('shippingLoading').style.display = 'none';
+  document.getElementById('shippingBox').style.display    = 'flex';
+}
+
+// Calcular al cargar si ya hay región
+window.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('regionSelect');
+  if (sel && sel.value) updateShipping(sel.value);
+});
+
+const SAVE_COUPON_URL = '{% url "save_coupon" %}';
+const SUBTOTAL_VAL = {{ cart_subtotal|floatformat:0 }};
+
+async function applyCoupon() {
+  const code = document.getElementById('couponInput').value.trim().toUpperCase();
+  if (!code) return;
+  const r = await fetch(`${SAVE_COUPON_URL}?code=${encodeURIComponent(code)}&subtotal=${SUBTOTAL_VAL}`);
+  const d = await r.json();
+  const errEl = document.getElementById('couponError');
+  if (d.ok) {
+    location.reload(); // recargar para mostrar descuento aplicado
+  } else {
+    errEl.textContent = d.error;
+    errEl.style.display = 'block';
+  }
+}
+
+async function removeCoupon(e) {
+  e.preventDefault();
+  await fetch(`${SAVE_COUPON_URL}?code=`);
+  location.reload();
+}
+
+document.getElementById('couponInput')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); applyCoupon(); }
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Ingresar — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.auth-wrap{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:60px 24px;}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:440px;}
+.auth-title{font-family:'Bebas Neue',sans-serif;font-size:36px;margin-bottom:6px;}
+.auth-sub{color:var(--gray);font-size:14px;margin-bottom:32px;}
+.auth-footer{text-align:center;margin-top:24px;font-size:13px;color:var(--gray);}
+.auth-footer a{color:var(--orange);text-decoration:none;}
+.error-msg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px 14px;font-size:13px;color:#ef4444;margin-bottom:16px;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h1 class="auth-title">INGRESAR</h1>
+    <p class="auth-sub">Accede a tu cuenta para ver tus pedidos y agilizar el checkout.</p>
+
+    {% if form.non_field_errors %}
+    <div class="error-msg">{{ form.non_field_errors|join:", " }}</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Usuario o email</label>
+        <input class="form-input" type="text" name="username" value="{{ form.username.value|default:'' }}" autofocus placeholder="tu@email.cl">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" name="password" placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:8px;">
+        Ingresar →
+      </button>
+    </form>
+    <div class="auth-footer">
+      ¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate gratis</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

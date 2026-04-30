@@ -1,0 +1,57 @@
+{% extends 'emails/base_email.html' %}
+{% block header_sub %}Nuevo pedido recibido{% endblock %}
+{% block body %}
+<div class="greeting">🛒 Nuevo pedido: {{ order.order_number }}</div>
+<p class="intro">Se registró un nuevo pedido en la tienda.</p>
+
+<div class="order-box">
+  <div class="order-row"><span class="label">Número</span><span class="value" style="color:#ff5c00;font-family:monospace;">{{ order.order_number }}</span></div>
+  <div class="order-row"><span class="label">Cliente</span><span class="value">{{ order.full_name }}</span></div>
+  <div class="order-row"><span class="label">Email</span><span class="value">{{ order.email }}</span></div>
+  <div class="order-row"><span class="label">Teléfono</span><span class="value">{{ order.phone }}</span></div>
+  <div class="order-row"><span class="label">Método de pago</span><span class="value">{{ order.get_payment_method_display }}</span></div>
+  <div class="order-row"><span class="label">Notificación</span><span class="value">{{ order.get_notification_method_display }}</span></div>
+  <div class="order-row"><span class="label">Fecha</span><span class="value">{{ order.created_at|date:"d/m/Y H:i" }}</span></div>
+</div>
+
+<div class="section-title">Productos pedidos</div>
+<table class="items-table">
+  <thead><tr><th>Producto</th><th>SKU</th><th>Cant.</th><th class="price">Subtotal</th></tr></thead>
+  <tbody>
+    {% for item in order.items.all %}
+    <tr>
+      <td><strong>{{ item.product_name }}</strong></td>
+      <td style="font-family:monospace;font-size:12px;color:#888;">{{ item.product_sku }}</td>
+      <td>x{{ item.quantity }}</td>
+      <td class="price">${{ item.get_subtotal|floatformat:0 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="total-row">
+  <span class="total-label">Total</span>
+  <span class="total-value">${{ order.total_amount|floatformat:0 }} CLP</span>
+</div>
+
+<div class="section-title">Dirección de envío</div>
+<div class="order-box">
+  <div class="order-row"><span class="label">Dirección</span><span class="value">{{ order.address }}</span></div>
+  <div class="order-row"><span class="label">Ciudad</span><span class="value">{{ order.city }}</span></div>
+  <div class="order-row"><span class="label">Región</span><span class="value">{{ order.region }}</span></div>
+  {% if order.postal_code %}<div class="order-row"><span class="label">Código postal</span><span class="value">{{ order.postal_code }}</span></div>{% endif %}
+</div>
+
+{% if order.notes %}
+<div class="section-title">Notas del cliente</div>
+<p style="font-size:14px;background:#fffbf0;border:1px solid #fde68a;padding:12px 16px;border-radius:8px;">{{ order.notes }}</p>
+{% endif %}
+
+{% if order.payment_method == 'bank_transfer' %}
+<div class="alert-box">⏳ Esperando comprobante de transferencia. Cuando lo recibas, cambia el estado del pedido en el <strong>panel admin</strong>.</div>
+{% endif %}
+
+<div class="wa-box">
+  <div class="wa-icon">💬</div>
+  <div class="wa-text">Contactar al cliente por WhatsApp:<br><a href="https://wa.me/{{ order.phone|cut:' '|cut:'+'|cut:'-' }}?text=Hola%20{{ order.full_name }}%2C%20te%20contactamos%20por%20tu%20pedido%20{{ order.order_number }}">{{ order.phone }} — Abrir chat</a></div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}¡Pago aprobado! — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.pay-wrap{max-width:680px;margin:0 auto;padding:60px 48px 80px;text-align:center;}
+.pay-icon{font-size:80px;margin-bottom:20px;filter:drop-shadow(0 0 30px rgba(34,197,94,.4));}
+.pay-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,70px);margin-bottom:8px;}
+.pay-sub{color:var(--gray-light);font-size:16px;margin-bottom:36px;line-height:1.6;}
+.order-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;text-align:left;}
+.oc-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.oc-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px solid rgba(255,255,255,.04);}
+.oc-row:last-child{border-bottom:none;}
+.oc-row span:first-child{color:var(--gray);}
+.oc-total{display:flex;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);margin-top:6px;}
+.oc-total-val{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--orange);}
+.wa-confirm{background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.3);border-radius:14px;padding:20px 24px;display:flex;gap:14px;align-items:center;margin-bottom:20px;text-align:left;}
+.wa-text h4{font-size:15px;font-weight:600;margin-bottom:4px;}
+.wa-text p{font-size:13px;color:var(--gray-light);}
+.status-pill{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.status-paid{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);}
+.status-pending{background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.3);}
+.action-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+@media(max-width:600px){.pay-wrap{padding:40px 20px;}.wa-confirm{flex-direction:column;}.action-row{flex-direction:column;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="pay-wrap">
+  <div class="pay-icon">✅</div>
+  <h1 class="pay-title">¡PAGO APROBADO!</h1>
+  <p class="pay-sub">
+    Tu pago fue procesado correctamente. <br>
+    Comenzaremos a fabricar tu pedido a la brevedad.
+  </p>
+
+  <!-- ESTADO -->
+  <span class="status-pill {% if order.status == 'paid' %}status-paid{% else %}status-pending{% endif %}">
+    {{ order.get_status_display }}
+  </span>
+
+  <!-- RESUMEN -->
+  <div class="order-card" style="margin-top:24px;">
+    <div class="oc-title">📦 Resumen del pedido</div>
+    <div class="oc-row">
+      <span>Número de pedido</span>
+      <span style="font-family:'DM Mono',monospace;font-weight:700;color:var(--orange);">{{ order.order_number }}</span>
+    </div>
+    {% for item in order.items.all %}
+    <div class="oc-row">
+      <span>{{ item.product_name }} × {{ item.quantity }}</span>
+      <span>${{ item.get_subtotal|floatformat:0 }}</span>
+    </div>
+    {% endfor %}
+    {% if order.shipping_cost %}
+    <div class="oc-row"><span>Envío</span><span>${{ order.shipping_cost|floatformat:0 }}</span></div>
+    {% endif %}
+    <div class="oc-total">
+      <span style="font-size:14px;color:var(--gray);">Total pagado</span>
+      <span class="oc-total-val">${{ order.total_amount|floatformat:0 }} CLP</span>
+    </div>
+  </div>
+
+  <!-- WHATSAPP -->
+  <div class="wa-confirm">
+    <div style="font-size:40px;">💬</div>
+    <div class="wa-text">
+      <h4>¿Tienes preguntas sobre tu pedido?</h4>
+      <p>Escríbenos directamente y te respondemos en minutos.</p>
+    </div>
+    <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Gflex3D%2C%20pagué%20el%20pedido%20{{ order.order_number }}"
+       target="_blank" class="btn-primary" style="white-space:nowrap;padding:11px 18px;">
+      Abrir WhatsApp
+    </a>
+  </div>
+
+  <div class="action-row">
+    <a href="{% url 'catalog' %}" class="btn-outline" style="padding:12px 28px;">Seguir comprando</a>
+    <a href="{% url 'home' %}" class="btn-primary" style="padding:12px 28px;">Ir al inicio</a>
+  </div>
+</div>
+{% endblock %}

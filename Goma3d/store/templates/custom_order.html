@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block title %}Pedido a Medida — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.custom-hero{padding:60px 48px 0;max-width:1100px;margin:0 auto;}
+.custom-hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);line-height:.95;margin-bottom:16px;}
+.custom-hero-title .accent{color:var(--orange);}
+.custom-hero-sub{color:var(--gray-light);font-size:16px;max-width:560px;line-height:1.7;margin-bottom:0;}
+.custom-layout{display:grid;grid-template-columns:1fr 380px;gap:48px;padding:40px 48px 80px;max-width:1100px;margin:0 auto;}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;}
+.form-card-section{margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--border);}
+.form-card-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.form-section-title{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:18px;}
+.file-upload{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.file-upload:hover{border-color:rgba(255,92,0,.5);}
+.file-upload input[type=file]{display:none;}
+.file-upload-icon{font-size:32px;margin-bottom:8px;}
+.file-upload-text{font-size:13px;color:var(--gray);}
+.file-upload-text strong{color:var(--orange);}
+.sidebar-info{display:flex;flex-direction:column;gap:16px;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;}
+.info-card-title{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;}
+.info-steps{display:flex;flex-direction:column;gap:14px;}
+.info-step{display:flex;gap:12px;align-items:flex-start;}
+.step-num{width:26px;height:26px;background:rgba(255,92,0,.15);border:1px solid rgba(255,92,0,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--orange);flex-shrink:0;margin-top:2px;}
+.step-desc{font-size:13px;color:var(--gray-light);line-height:1.5;}
+.feature-list{display:flex;flex-direction:column;gap:10px;}
+.feature-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray-light);}
+.check-sm{width:18px;height:18px;background:rgba(255,92,0,.12);border:1px solid rgba(255,92,0,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--orange);flex-shrink:0;}
+.wa-card{background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.25);border-radius:14px;padding:20px;text-align:center;}
+.wa-card h4{font-size:15px;font-weight:600;margin-bottom:6px;}
+.wa-card p{font-size:12px;color:var(--gray-light);margin-bottom:16px;}
+.btn-wa{display:block;background:#25d366;color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .2s;}
+.btn-wa:hover{background:#1ab955;}
+.form-error{font-size:12px;color:#ef4444;margin-top:4px;}
+@media(max-width:900px){.custom-layout{grid-template-columns:1fr;padding:24px;}.custom-hero{padding:40px 24px 0;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="custom-hero">
+  <div class="breadcrumb" style="padding:0 0 20px">
+    <a href="{% url 'home' %}">Inicio</a><span>›</span>
+    <span style="color:var(--white)">Pedido a medida</span>
+  </div>
+  <h1 class="custom-hero-title">FABRICAMOS<br><span class="accent">TU PIEZA</span></h1>
+  <p class="custom-hero-sub">¿No encuentras el repuesto que necesitas? Lo fabricamos a medida en poliuretano o caucho. Diseño 3D incluido, cotización sin costo.</p>
+</div>
+
+<div class="custom-layout">
+  <!-- FORMULARIO COMPLETO -->
+  <div>
+    {% if messages %}
+      {% for message in messages %}
+      <div class="msg-toast msg-{{ message.tags }}" style="margin-bottom:16px;border-radius:10px;padding:14px 20px;">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" id="customForm">
+      {% csrf_token %}
+      <div class="form-card">
+
+        <!-- CONTACTO -->
+        <div class="form-card-section">
+          <div class="form-section-title">👤 Tus datos</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nombre completo *</label>
+              <input class="form-input" name="full_name" type="text" required placeholder="Tu nombre" value="{{ form.full_name.value|default:'' }}">
+              {% if form.full_name.errors %}<div class="form-error">{{ form.full_name.errors|join:", " }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Teléfono *</label>
+              <input class="form-input" name="phone" type="tel" required placeholder="+56 9 XXXX XXXX" value="{{ form.phone.value|default:'' }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input class="form-input" name="email" type="email" required placeholder="tu@email.cl" value="{{ form.email.value|default:'' }}">
+          </div>
+        </div>
+
+        <!-- VEHÍCULO -->
+        <div class="form-card-section">
+          <div class="form-section-title">🚗 Datos del vehículo</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Marca *</label>
+              <input class="form-input" name="vehicle_make" type="text" required placeholder="Toyota" value="{{ form.vehicle_make.value|default:'' }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Modelo *</label>
+              <input class="form-input" name="vehicle_model" type="text" required placeholder="Corolla" value="{{ form.vehicle_model.value|default:'' }}">
+            </div>
+          </div>
+          <div class="form-group" style="max-width:160px;">
+            <label class="form-label">Año</label>
+            <input class="form-input" name="vehicle_year" type="text" placeholder="2018" value="{{ form.vehicle_year.value|default:'' }}">
+          </div>
+        </div>
+
+        <!-- PIEZA -->
+        <div class="form-card-section">
+          <div class="form-section-title">🔩 Descripción de la pieza</div>
+          <div class="form-group">
+            <label class="form-label">Descripción detallada *</label>
+            <textarea class="form-input" name="part_description" required rows="4" placeholder="Describe la pieza: ¿qué es?, ¿dónde va montada?, ¿medidas aproximadas si las tienes?">{{ form.part_description.value|default:'' }}</textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Material preferido</label>
+              <select class="form-input" name="preferred_material">
+                <option value="">Sin preferencia</option>
+                {% for mat in form.fields.preferred_material.queryset %}
+                <option value="{{ mat.pk }}" {% if form.preferred_material.value|stringformat:'s' == mat.pk|stringformat:'s' %}selected{% endif %}>{{ mat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cantidad</label>
+              <input class="form-input" name="quantity" type="number" min="1" value="{{ form.quantity.value|default:'1' }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- ARCHIVOS -->
+        <div class="form-card-section">
+          <div class="form-section-title">📎 Referencia visual (opcional)</div>
+          <div class="file-upload" onclick="document.getElementById('refImg').click()">
+            <div class="file-upload-icon">📷</div>
+            <div class="file-upload-text"><strong>Foto de la pieza original</strong><br>JPG, PNG, WEBP — máx. 5 MB</div>
+            <input type="file" id="refImg" name="reference_image" accept="image/*" onchange="showFile(this,'imgLabel')">
+            <div id="imgLabel" style="margin-top:8px;font-size:12px;color:var(--orange);"></div>
+          </div>
+        </div>
+
+        <!-- NOTAS -->
+        <div class="form-card-section">
+          <div class="form-section-title">📝 Notas adicionales</div>
+          <textarea class="form-input" name="additional_notes" rows="3" placeholder="Cualquier información extra que nos ayude a fabricar tu pieza...">{{ form.additional_notes.value|default:'' }}</textarea>
+        </div>
+
+        <!-- BOTONES -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button type="submit" name="via" value="form" class="btn-primary" style="flex:1;padding:14px;font-size:15px;">
+            Enviar solicitud
+          </button>
+          <button type="submit" name="via" value="whatsapp" class="btn-outline" style="padding:14px 20px;font-size:14px;white-space:nowrap;">
+            💬 Enviar por WhatsApp
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar-info">
+    <div class="info-card">
+      <div class="info-card-title">🔄 ¿Cómo funciona?</div>
+      <div class="info-steps">
+        <div class="info-step"><div class="step-num">1</div><div class="step-desc">Envías tu solicitud con descripción y foto de la pieza.</div></div>
+        <div class="info-step"><div class="step-num">2</div><div class="step-desc">Hacemos el modelado 3D y te enviamos cotización sin costo.</div></div>
+        <div class="info-step"><div class="step-num">3</div><div class="step-desc">Apruebas y fabricamos en 5–10 días hábiles.</div></div>
+        <div class="info-step"><div class="step-num">4</div><div class="step-desc">Enviamos a todo Chile con seguimiento.</div></div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">✅ Incluido</div>
+      <div class="feature-list">
+        <div class="feature-item"><div class="check-sm">✓</div>Diseño 3D incluido sin costo</div>
+        <div class="feature-item"><div class="check-sm">✓</div>Cotización en menos de 24 hrs</div>
+        <div class="feature-item"><div class="check-sm">✓</div>Poliuretano o caucho a elección</div>
+        <div class="feature-item"><div class="check-sm">✓</div>Garantía de fabricación</div>
+        <div class="feature-item"><div class="check-sm">✓</div>Envío a todo Chile</div>
+        <div class="feature-item"><div class="check-sm">✓</div>Sin mínimo de compra</div>
+      </div>
+    </div>
+
+    <div class="wa-card">
+      <div style="font-size:40px;margin-bottom:8px;">💬</div>
+      <h4>¿Prefieres hablar directo?</h4>
+      <p>Escríbenos por WhatsApp, te respondemos en minutos en horario hábil.</p>
+      <a href="https://wa.me/56912345678?text=Hola%2C%20quiero%20pedir%20una%20pieza%20a%20medida" target="_blank" class="btn-wa">
+        Chatear por WhatsApp
+      </a>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">📐 Materiales</div>
+      <div style="font-size:13px;color:var(--gray-light);line-height:1.8;">
+        <strong style="color:var(--white)">Poliuretano</strong> — Alta resistencia al desgaste, ideal para bujes y topes.<br>
+        <strong style="color:var(--white)">Caucho EPDM</strong> — Resistente a la intemperie, perfecto para mangueras.<br>
+        <strong style="color:var(--white)">Caucho NBR</strong> — Resistente al aceite, guardapolvos y sellos.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showFile(input, labelId){
+  const label = document.getElementById(labelId);
+  if(input.files && input.files[0]){
+    label.textContent = '📎 ' + input.files[0].name;
+  }
+}
+</script>
+{% endblock %}

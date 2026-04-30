@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block title %}Gflex3D — Repuestos en Poliuretano y Caucho{% endblock %}
+{% block extra_css %}
+<style>
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-10px) rotate(5deg)}}
+@keyframes floatB{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:0;padding:140px 48px 80px;position:relative;}
+.hero::after{content:'';position:absolute;top:0;right:0;width:55%;height:100%;background:radial-gradient(ellipse at 70% 40%,rgba(255,92,0,.12) 0%,transparent 65%);pointer-events:none;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,92,0,.12);border:1px solid rgba(255,92,0,.3);color:var(--orange);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px;}
+.hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,8vw,110px);line-height:.92;letter-spacing:1px;margin-bottom:28px;}
+.hero-title .accent{color:var(--orange);}
+.hero-title .outline{-webkit-text-stroke:1px rgba(245,243,239,.3);color:transparent;}
+.hero-desc{color:var(--gray-light);font-size:16px;line-height:1.7;max-width:480px;margin-bottom:36px;}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px;}
+.hero-stats{display:flex;gap:36px;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--white);}
+.stat-label{font-size:11px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;}
+.hero-visual{position:relative;display:flex;align-items:center;justify-content:center;}
+.hero-glow{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(255,92,0,.15) 0%,transparent 65%);border-radius:50%;}
+.hero-model{font-size:180px;animation:float 4s ease-in-out infinite;position:relative;z-index:1;filter:drop-shadow(0 0 60px rgba(255,92,0,.3));}
+.hero-tag-float{position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-size:12px;display:flex;align-items:center;gap:10px;animation:floatB 3s ease-in-out infinite;}
+.hero-tag-float.tl{top:20%;left:0;animation-delay:0s;}
+.hero-tag-float.br{bottom:25%;right:0;animation-delay:1.5s;}
+.tag-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);}
+.categories-strip{padding:80px 48px;}
+.section-eyebrow{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:12px;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4vw,56px);margin-bottom:40px;}
+.categories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.cat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;cursor:pointer;transition:border-color .3s,transform .3s;position:relative;overflow:hidden;text-decoration:none;color:var(--white);}
+.cat-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);transform:scaleX(0);transition:transform .3s;}
+.cat-card:hover{transform:translateY(-4px);border-color:rgba(255,92,0,.4);}
+.cat-card:hover::before{transform:scaleX(1);}
+.cat-icon{font-size:32px;margin-bottom:12px;}
+.cat-name{font-weight:600;font-size:15px;margin-bottom:4px;}
+.cat-count{font-size:12px;color:var(--gray);}
+.products-section{padding:80px 48px;}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.product-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:transform .3s,border-color .3s;cursor:pointer;}
+.product-card:hover{transform:translateY(-4px);border-color:rgba(255,92,0,.4);}
+.product-img{height:200px;display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;background:linear-gradient(135deg,#1e2228,#2a2228);}
+.product-img img{width:100%;height:100%;object-fit:cover;}
+.product-badge{position:absolute;top:12px;left:12px;background:rgba(255,92,0,.15);color:var(--orange);border:1px solid rgba(255,92,0,.3);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+.product-3d-badge{position:absolute;top:12px;right:12px;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.3);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;}
+.product-info{padding:20px;}
+.product-category{font-size:10px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.product-name{font-weight:600;font-size:16px;margin-bottom:6px;}
+.product-compat{font-size:12px;color:var(--gray);margin-bottom:16px;}
+.product-footer{display:flex;align-items:center;justify-content:space-between;}
+.product-price{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;}
+.product-price small{display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--gray);font-weight:400;margin-top:2px;}
+.btn-add{background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;transition:background .2s,border-color .2s;}
+.btn-add:hover{background:var(--orange);border-color:var(--orange);}
+.custom-section{padding:80px 48px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;border-top:1px solid var(--border);}
+.custom-eyebrow{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:12px;}
+.custom-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,4vw,60px);line-height:1;margin-bottom:20px;}
+.custom-desc{color:var(--gray-light);font-size:15px;line-height:1.7;margin-bottom:32px;}
+.custom-features{display:flex;flex-direction:column;gap:12px;}
+.custom-feature{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--gray-light);}
+.check{width:20px;height:20px;background:rgba(255,92,0,.15);border:1px solid rgba(255,92,0,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--orange);flex-shrink:0;}
+.custom-form-side{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;}
+.form-title{font-weight:600;font-size:16px;margin-bottom:24px;}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding:120px 24px 60px;}.hero-visual{display:none;}.custom-section{grid-template-columns:1fr;gap:32px;padding:60px 24px;}.categories-strip,.products-section{padding:60px 24px;}nav{padding:16px 24px;}.nav-links{display:none;}footer{grid-template-columns:1fr 1fr;padding:40px 24px;}.form-row{grid-template-columns:1fr;}.breadcrumb{padding:20px 24px 0;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">Fabricación a pedido · Envío Chile</div>
+    <h1 class="hero-title">
+      REPUESTOS<br>
+      <span class="outline">EN POLI</span><br>
+      <span class="accent">URETANO</span>
+    </h1>
+    <p class="hero-desc">Fabricamos mangueras, bujes, topes de motor y guardapolvos en poliuretano y caucho de alta durabilidad. Diseñados en 3D, fabricados a pedido para tu vehículo.</p>
+    <div class="hero-ctas">
+      <a href="{% url 'catalog' %}" class="btn-primary" style="padding:13px 28px;font-size:14px;">Ver catálogo</a>
+      <a href="{% url 'custom_order' %}" class="btn-outline" style="padding:13px 28px;font-size:14px;">📐 Pedir a medida</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-val">+400</div><div class="stat-label">Piezas disponibles</div></div>
+      <div><div class="stat-val">3D</div><div class="stat-label">Diseño propio</div></div>
+      <div><div class="stat-val">7d</div><div class="stat-label">Fabricación</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-glow"></div>
+    <div class="hero-model">⚙️</div>
+    <div class="hero-tag-float tl"><div class="tag-dot"></div><span>Poliuretano 80 Shore A</span></div>
+    <div class="hero-tag-float br"><div class="tag-dot"></div><span>Envío a todo Chile</span></div>
+  </div>
+</section>
+
+<!-- CATEGORÍAS -->
+{% if categories %}
+<section class="categories-strip">
+  <div class="section-eyebrow">Explora por tipo</div>
+  <div class="section-title">CATEGORÍAS</div>
+  <div class="categories-grid">
+    {% for cat in categories %}
+    <a href="{% url 'catalog_category' cat.slug %}" class="cat-card">
+      <div class="cat-icon">
+        {% if cat.icon %}{{ cat.icon }}{% else %}🔩{% endif %}
+      </div>
+      <div class="cat-name">{{ cat.name }}</div>
+      <div class="cat-count">{{ cat.products.count }} producto{{ cat.products.count|pluralize }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- PRODUCTOS DESTACADOS -->
+{% if featured_products %}
+<section class="products-section">
+  <div class="section-eyebrow">Más vendidos</div>
+  <div class="section-title">PRODUCTOS DESTACADOS</div>
+  <div class="products-grid">
+    {% for product in featured_products %}
+    <div class="product-card" onclick="window.location='{% url 'product_detail' product.slug %}'">
+      <div class="product-img">
+        {% if product.thumbnail %}
+          <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}">
+        {% else %}⚙️{% endif %}
+        {% if product.status == 'on_request' %}<div class="product-badge">A pedido</div>{% endif %}
+        {% if product.get_model_3d %}<div class="product-3d-badge">🔄 3D</div>{% endif %}
+      </div>
+      <div class="product-info">
+        <div class="product-category">{{ product.category }}</div>
+        <div class="product-name">{{ product.name }}</div>
+        <div class="product-compat">{{ product.compatible_vehicles|truncatewords:6 }}</div>
+        <div class="product-footer">
+          <div class="product-price">
+            ${{ product.base_price|floatformat:0 }}
+            <small>{% for m in product.materials.all %}{{ m.get_material_type_display }}{% if not forloop.last %} / {% endif %}{% endfor %}</small>
+          </div>
+          <button class="btn-add" onclick="event.stopPropagation();addToCart('{{ product.pk }}')">+ Agregar</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div style="text-align:center;margin-top:40px;">
+    <a href="{% url 'catalog' %}" class="btn-outline" style="padding:13px 32px;">Ver catálogo completo →</a>
+  </div>
+</section>
+{% endif %}
+
+<!-- PEDIDO A MEDIDA -->
+<section class="custom-section">
+  <div class="custom-info">
+    <div class="custom-eyebrow">Servicio exclusivo</div>
+    <h2 class="custom-title">¿NO ENCUENTRAS TU PIEZA?</h2>
+    <p class="custom-desc">Fabricamos cualquier pieza de poliuretano o caucho a tu medida. Solo necesitamos la pieza original, un plano o descripción y la hacemos realidad en días.</p>
+    <div class="custom-features">
+      <div class="custom-feature"><div class="check">✓</div> Diseño 3D incluido</div>
+      <div class="custom-feature"><div class="check">✓</div> Cotización sin costo</div>
+      <div class="custom-feature"><div class="check">✓</div> Envío a todo Chile</div>
+      <div class="custom-feature"><div class="check">✓</div> Garantía de fabricación</div>
+    </div>
+  </div>
+  <div class="custom-form-side">
+    <div class="form-title">Solicitar cotización rápida</div>
+    <form method="post" action="{% url 'custom_order' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input class="form-input" name="full_name" placeholder="Tu nombre" type="text" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input class="form-input" name="phone" placeholder="+56 9 XXXX XXXX" type="tel" required>
+        </div>
+      </div>
+      <input type="hidden" name="email" value="sin@email.cl">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Marca vehículo</label>
+          <input class="form-input" name="vehicle_make" placeholder="Toyota" type="text" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Modelo</label>
+          <input class="form-input" name="vehicle_model" placeholder="Corolla 2018" type="text" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción de la pieza</label>
+        <textarea class="form-input" name="part_description" placeholder="Describe la pieza que necesitas..." required></textarea>
+      </div>
+      <input type="hidden" name="quantity" value="1">
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button type="submit" class="btn-primary" style="flex:1;padding:12px">Enviar solicitud</button>
+        <button type="submit" name="via" value="whatsapp" class="btn-outline" style="padding:12px 16px;white-space:nowrap">💬 WhatsApp</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Pago no disponible — Gflex3D{% endblock %}
+{% block content %}
+<div style="max-width:580px;margin:0 auto;padding:60px 48px;text-align:center;">
+  <div style="font-size:64px;margin-bottom:20px;">🔧</div>
+  <h1 style="font-family:'Bebas Neue',sans-serif;font-size:52px;margin-bottom:8px;">PAGO EN LÍNEA</h1>
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--orange);margin-bottom:20px;">NO CONFIGURADO AÚN</h2>
+  <p style="color:var(--gray-light);font-size:15px;line-height:1.7;margin-bottom:32px;">
+    El pago con tarjeta aún no está activo. Puedes completar tu pedido
+    <strong>{{ order.order_number }}</strong> por transferencia bancaria.
+  </p>
+  <a href="{% url 'order_confirmation' order.order_number %}" class="btn-primary" style="padding:14px 32px;font-size:15px;">
+    🏦 Ver datos de transferencia
+  </a>
+</div>
+{% endblock %}

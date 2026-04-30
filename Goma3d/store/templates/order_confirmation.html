@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Pedido {{ order.order_number }} — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.confirm-wrap{max-width:720px;margin:0 auto;padding:60px 48px 80px;}
+.confirm-icon{font-size:64px;margin-bottom:20px;}
+.confirm-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,56px);margin-bottom:8px;}
+.confirm-subtitle{color:var(--gray-light);font-size:16px;margin-bottom:40px;}
+.order-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;}
+.order-card-title{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.order-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.order-row:last-child{border-bottom:none;}
+.order-row span:first-child{color:var(--gray);}
+.order-row span:last-child{font-weight:500;}
+.order-number-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:20px;font-weight:600;color:var(--orange);background:rgba(255,92,0,.1);border:1px solid rgba(255,92,0,.3);border-radius:10px;padding:8px 20px;margin-bottom:24px;}
+.bank-card{background:rgba(255,92,0,.06);border:1px solid rgba(255,92,0,.25);border-radius:16px;padding:28px;}
+.bank-card-title{font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:18px;}
+.bank-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;}
+.bank-row:last-child{border-bottom:none;}
+.bank-row span:first-child{color:var(--gray);}
+.bank-row strong{font-family:'DM Mono',monospace;letter-spacing:.5px;}
+.copy-btn{background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:background .2s;}
+.copy-btn:hover{background:var(--orange);}
+.steps{display:flex;flex-direction:column;gap:14px;margin-bottom:28px;}
+.step{display:flex;gap:14px;align-items:flex-start;}
+.step-num{width:28px;height:28px;background:rgba(255,92,0,.15);border:1px solid rgba(255,92,0,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--orange);flex-shrink:0;margin-top:2px;}
+.step-text{font-size:14px;color:var(--gray-light);line-height:1.6;}
+.wa-confirm{background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.3);border-radius:16px;padding:24px;display:flex;gap:16px;align-items:center;margin-bottom:20px;}
+.wa-icon{font-size:40px;}
+.wa-text h4{font-size:15px;font-weight:600;margin-bottom:4px;}
+.wa-text p{font-size:13px;color:var(--gray-light);}
+@media(max-width:600px){.confirm-wrap{padding:40px 24px;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-wrap">
+  <div class="confirm-icon">🎉</div>
+  <h1 class="confirm-title">¡PEDIDO CONFIRMADO!</h1>
+  <p class="confirm-subtitle">Gracias {{ order.full_name }}. Recibimos tu pedido y comenzaremos a procesarlo.</p>
+
+  <div class="order-number-badge">{{ order.order_number }}</div>
+
+  <!-- RESUMEN PEDIDO -->
+  <div class="order-card">
+    <div class="order-card-title">📋 Resumen del pedido</div>
+    {% for item in order.items.all %}
+    <div class="order-row">
+      <span>{{ item.product_name }} × {{ item.quantity }}</span>
+      <span>${{ item.get_subtotal|floatformat:0 }}</span>
+    </div>
+    {% endfor %}
+    <div class="order-row" style="margin-top:8px;font-size:16px;">
+      <span>Total</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--orange)">${{ order.total_amount|floatformat:0 }}</span>
+    </div>
+  </div>
+
+  <!-- DATOS ENVÍO -->
+  <div class="order-card">
+    <div class="order-card-title">📦 Datos de entrega</div>
+    <div class="order-row"><span>Destinatario</span><span>{{ order.full_name }}</span></div>
+    <div class="order-row"><span>Dirección</span><span>{{ order.address }}</span></div>
+    <div class="order-row"><span>Ciudad / Región</span><span>{{ order.city }}, {{ order.region }}</span></div>
+    <div class="order-row"><span>Teléfono</span><span>{{ order.phone }}</span></div>
+    <div class="order-row"><span>Email</span><span>{{ order.email }}</span></div>
+  </div>
+
+  <!-- PAGO -->
+  {% if order.payment_method == 'bank_transfer' %}
+  <div class="bank-card" style="margin-bottom:20px;">
+    <div class="bank-card-title">🏦 Datos para transferencia</div>
+    <div class="steps" style="margin-bottom:20px;">
+      <div class="step"><div class="step-num">1</div><div class="step-text">Realiza la transferencia por <strong>${{ order.total_amount|floatformat:0 }} CLP</strong> a la cuenta indicada abajo.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Envía el comprobante al email <strong>{{ bank_email }}</strong> o por WhatsApp indicando el número <strong>{{ order.order_number }}</strong>.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Confirmamos en máximo 2 horas hábiles e iniciamos fabricación.</div></div>
+    </div>
+    <div class="bank-row"><span>Banco</span><strong>{{ bank_name }}</strong></div>
+    <div class="bank-row"><span>Titular</span><strong>{{ bank_account_name }}</strong></div>
+    <div class="bank-row"><span>RUT</span><strong>{{ bank_rut }}</strong></div>
+    <div class="bank-row">
+      <span>Nº cuenta</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <strong id="accNum">{{ bank_account_number }}</strong>
+        <button class="copy-btn" onclick="copyText('{{ bank_account_number }}')">Copiar</button>
+      </div>
+    </div>
+    <div class="bank-row">
+      <span>Monto exacto</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <strong id="transferAmt">${{ order.total_amount|floatformat:0 }}</strong>
+        <button class="copy-btn" onclick="copyText('{{ order.total_amount|floatformat:0 }}')">Copiar</button>
+      </div>
+    </div>
+    <div class="bank-row"><span>Asunto email</span><strong>{{ order.order_number }}</strong></div>
+  </div>
+  {% else %}
+  <div class="order-card">
+    <div class="order-card-title">💳 Pago</div>
+    <div class="order-row">
+      <span>Método</span>
+      <span>{% if order.payment_method == 'mercadopago' %}MercadoPago{% else %}WebPay / Transbank{% endif %}</span>
+    </div>
+    <div class="order-row"><span>Estado</span><span style="color:#22c55e">✓ Procesando</span></div>
+    <p style="font-size:13px;color:var(--gray);margin-top:12px;">Te enviaremos confirmación a <strong>{{ order.email }}</strong> cuando el pago sea verificado.</p>
+  </div>
+  {% endif %}
+
+  <!-- WHATSAPP -->
+  <div class="wa-confirm">
+    <div class="wa-icon">💬</div>
+    <div class="wa-text">
+      <h4>Confirma también por WhatsApp</h4>
+      <p>Envíanos el comprobante o cualquier consulta directamente.</p>
+    </div>
+    <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Gflex3D%2C%20hice%20el%20pedido%20{{ order.order_number }}" target="_blank" class="btn-primary" style="white-space:nowrap;padding:12px 18px;">
+      Abrir WhatsApp
+    </a>
+  </div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <a href="{% url 'catalog' %}" class="btn-outline" style="flex:1;text-align:center;padding:13px;">Seguir comprando</a>
+    <a href="{% url 'home' %}" class="btn-primary" style="flex:1;text-align:center;padding:13px;">Ir al inicio</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyText(txt){
+  navigator.clipboard.writeText(txt).then(()=>{
+    const t=document.createElement('div');
+    t.className='msg-toast msg-success';t.textContent='¡Copiado!';
+    let c=document.getElementById('toastContainer');
+    if(!c){c=document.createElement('div');c.id='toastContainer';c.className='messages-container';document.body.appendChild(c);}
+    c.appendChild(t);setTimeout(()=>t.remove(),2500);
+  });
+}
+</script>
+{% endblock %}

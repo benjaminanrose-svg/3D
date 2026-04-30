@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Crear cuenta — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.auth-wrap{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:60px 24px;}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:480px;}
+.auth-title{font-family:'Bebas Neue',sans-serif;font-size:36px;margin-bottom:6px;}
+.auth-sub{color:var(--gray);font-size:14px;margin-bottom:32px;}
+.auth-footer{text-align:center;margin-top:24px;font-size:13px;color:var(--gray);}
+.auth-footer a{color:var(--orange);text-decoration:none;}
+.field-error{font-size:12px;color:#ef4444;margin-top:4px;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h1 class="auth-title">CREAR CUENTA</h1>
+    <p class="auth-sub">Crea tu cuenta para guardar tu dirección y ver el historial de pedidos.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre *</label>
+          <input class="form-input" type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" placeholder="Juan">
+          {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Apellido</label>
+          <input class="form-input" type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" placeholder="Pérez">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input class="form-input" type="email" name="email" value="{{ form.email.value|default:'' }}" placeholder="tu@email.cl">
+        {% if form.email.errors %}<div class="field-error">{{ form.email.errors|join:", " }}</div>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre de usuario *</label>
+        <input class="form-input" type="text" name="username" value="{{ form.username.value|default:'' }}" placeholder="juanperez">
+        {% if form.username.errors %}<div class="field-error">{{ form.username.errors|join:", " }}</div>{% endif %}
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Contraseña *</label>
+          <input class="form-input" type="password" name="password1" placeholder="Mínimo 8 caracteres">
+          {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar *</label>
+          <input class="form-input" type="password" name="password2" placeholder="Repite la contraseña">
+          {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors|join:", " }}</div>{% endif %}
+        </div>
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:8px;">
+        Crear cuenta →
+      </button>
+    </form>
+    <div class="auth-footer">¿Ya tienes cuenta? <a href="{% url 'login' %}">Ingresar</a></div>
+  </div>
+</div>
+{% endblock %}

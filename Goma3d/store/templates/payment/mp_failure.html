@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Pago rechazado — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.pay-wrap{max-width:600px;margin:0 auto;padding:60px 48px 80px;text-align:center;}
+.pay-icon{font-size:72px;margin-bottom:20px;}
+.pay-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,64px);margin-bottom:8px;}
+.pay-sub{color:var(--gray-light);font-size:15px;margin-bottom:32px;line-height:1.6;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px;text-align:left;}
+.ic-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;}
+.ic-item{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--gray-light);margin-bottom:10px;}
+.ic-item:last-child{margin-bottom:0;}
+.ic-check{color:var(--orange);flex-shrink:0;margin-top:2px;}
+.action-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="pay-wrap">
+  <div class="pay-icon">❌</div>
+  <h1 class="pay-title">PAGO RECHAZADO</h1>
+  <p class="pay-sub">
+    Tu pago no pudo procesarse. Tu pedido <strong style="color:var(--orange);">{{ order.order_number }}</strong>
+    sigue guardado — puedes intentarlo nuevamente o pagar por transferencia.
+  </p>
+
+  <div class="info-card">
+    <div class="ic-title">¿Por qué puede fallar un pago?</div>
+    <div class="ic-item"><span class="ic-check">→</span><span>Fondos insuficientes en la tarjeta</span></div>
+    <div class="ic-item"><span class="ic-check">→</span><span>Datos de la tarjeta incorrectos</span></div>
+    <div class="ic-item"><span class="ic-check">→</span><span>Límite de compras en línea superado</span></div>
+    <div class="ic-item"><span class="ic-check">→</span><span>El banco bloqueó la transacción por seguridad</span></div>
+  </div>
+
+  <div class="action-row">
+    <a href="{% url 'mp_pay' order.order_number %}" class="btn-primary" style="padding:13px 28px;">
+      💳 Reintentar pago
+    </a>
+    <a href="{% url 'order_confirmation' order.order_number %}" class="btn-outline" style="padding:13px 28px;">
+      🏦 Pagar por transferencia
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'emails/base_email.html' %}
+{% block header_sub %}Confirmación de pedido{% endblock %}
+{% block body %}
+<div class="greeting">¡Tu pedido fue recibido, {{ order.full_name }}! 🎉</div>
+<p class="intro">Gracias por tu compra en Gflex3D. Registramos tu pedido y lo procesaremos a la brevedad. Aquí tienes el resumen completo.</p>
+
+<div class="tag">{{ order.order_number }}</div>
+
+<div class="divider"></div>
+
+<div class="section-title">Productos</div>
+<table class="items-table">
+  <thead><tr><th>Producto</th><th>Cant.</th><th class="price">Subtotal</th></tr></thead>
+  <tbody>
+    {% for item in order.items.all %}
+    <tr>
+      <td><strong>{{ item.product_name }}</strong><br><span style="color:#aaa;font-size:12px;">SKU: {{ item.product_sku }}</span></td>
+      <td>x{{ item.quantity }}</td>
+      <td class="price">${{ item.get_subtotal|floatformat:0 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="total-row">
+  <span class="total-label">Total a pagar</span>
+  <span class="total-value">${{ order.total_amount|floatformat:0 }} CLP</span>
+</div>
+
+<div class="section-title">Dirección de entrega</div>
+<div class="order-box">
+  <div class="order-row"><span class="label">Destinatario</span><span class="value">{{ order.full_name }}</span></div>
+  <div class="order-row"><span class="label">Dirección</span><span class="value">{{ order.address }}</span></div>
+  <div class="order-row"><span class="label">Ciudad / Región</span><span class="value">{{ order.city }}, {{ order.region }}</span></div>
+  <div class="order-row"><span class="label">Teléfono</span><span class="value">{{ order.phone }}</span></div>
+</div>
+
+{% if order.payment_method == 'bank_transfer' %}
+<div class="section-title">Instrucciones de pago</div>
+<div class="alert-box">⚠️ Tu pedido quedará <strong>en espera</strong> hasta confirmar el pago. Realiza la transferencia y envíanos el comprobante.</div>
+<div class="step-box">
+  <div class="step"><div class="step-num">1</div><div class="step-text">Realiza la transferencia por <strong>${{ order.total_amount|floatformat:0 }} CLP</strong> a los datos de abajo.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Envía el comprobante al email <strong>{{ bank_email }}</strong> con el asunto <strong>{{ order.order_number }}</strong>.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Confirmamos en máximo 2 hrs hábiles e iniciamos fabricación.</div></div>
+</div>
+<div class="bank-box">
+  <div class="bank-row"><span class="bl">Banco</span><span class="bv">{{ bank_name }}</span></div>
+  <div class="bank-row"><span class="bl">Titular</span><span class="bv">{{ bank_account_name }}</span></div>
+  <div class="bank-row"><span class="bl">RUT</span><span class="bv">{{ bank_rut }}</span></div>
+  <div class="bank-row"><span class="bl">Tipo de cuenta</span><span class="bv">{{ bank_account_type }}</span></div>
+  <div class="bank-row"><span class="bl">Nº cuenta</span><span class="bv">{{ bank_account_number }}</span></div>
+  <div class="bank-row"><span class="bl">Monto exacto</span><span class="bv" style="color:#ff5c00;">${{ order.total_amount|floatformat:0 }} CLP</span></div>
+  <div class="bank-row"><span class="bl">Asunto del email</span><span class="bv">{{ order.order_number }}</span></div>
+</div>
+{% else %}
+<div class="section-title">Método de pago</div>
+<div class="order-box">
+  <div class="order-row"><span class="label">Método</span><span class="value">{% if order.payment_method == 'mercadopago' %}MercadoPago{% else %}WebPay / Transbank{% endif %}</span></div>
+  <div class="order-row"><span class="label">Estado</span><span class="value" style="color:#16a34a;">✓ Procesando</span></div>
+</div>
+{% endif %}
+
+<div class="wa-box">
+  <div class="wa-icon">💬</div>
+  <div class="wa-text">¿Tienes dudas o quieres enviar el comprobante? Escríbenos por <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Gflex3D%2C%20mi%20pedido%20es%20{{ order.order_number }}">WhatsApp — toca aquí</a></div>
+</div>
+
+{% if order.notes %}
+<div class="section-title">Tus notas</div>
+<p style="font-size:14px;color:#555;background:#f9f9fa;padding:12px 16px;border-radius:8px;">{{ order.notes }}</p>
+{% endif %}
+{% endblock %}

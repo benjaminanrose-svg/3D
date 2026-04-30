@@ -1,0 +1,33 @@
+{% extends 'emails/base_email.html' %}
+{% block header_sub %}Nueva solicitud de cotización{% endblock %}
+{% block body %}
+<div class="greeting">📐 Nueva solicitud de pieza a medida</div>
+<p class="intro">Un cliente acaba de enviar una solicitud de fabricación personalizada.</p>
+
+<div class="order-box">
+  <div class="order-row"><span class="label">Cliente</span><span class="value">{{ obj.full_name }}</span></div>
+  <div class="order-row"><span class="label">Teléfono</span><span class="value">{{ obj.phone }}</span></div>
+  <div class="order-row"><span class="label">Email</span><span class="value">{{ obj.email }}</span></div>
+  <div class="order-row"><span class="label">Vehículo</span><span class="value">{{ obj.vehicle_make }} {{ obj.vehicle_model }}{% if obj.vehicle_year %} {{ obj.vehicle_year }}{% endif %}</span></div>
+  <div class="order-row"><span class="label">Cantidad</span><span class="value">{{ obj.quantity }}</span></div>
+  {% if obj.preferred_material %}<div class="order-row"><span class="label">Material</span><span class="value">{{ obj.preferred_material }}</span></div>{% endif %}
+  <div class="order-row"><span class="label">Fecha</span><span class="value">{{ obj.created_at|date:"d/m/Y H:i" }}</span></div>
+</div>
+
+<div class="section-title">Descripción de la pieza</div>
+<p style="font-size:15px;background:#f9f9fa;border-left:4px solid #ff5c00;padding:14px 16px;border-radius:0 8px 8px 0;line-height:1.6;margin-bottom:24px;">{{ obj.part_description }}</p>
+
+{% if obj.additional_notes %}
+<div class="section-title">Notas adicionales</div>
+<p style="font-size:14px;background:#fffbf0;border:1px solid #fde68a;padding:12px 16px;border-radius:8px;margin-bottom:24px;">{{ obj.additional_notes }}</p>
+{% endif %}
+
+{% if obj.reference_image %}
+<div class="alert-box">📷 El cliente adjuntó una imagen de referencia. Revísala en el <strong>panel de administración</strong> → Pedidos personalizados.</div>
+{% endif %}
+
+<div class="wa-box">
+  <div class="wa-icon">💬</div>
+  <div class="wa-text">Responder al cliente por WhatsApp:<br><a href="https://wa.me/{{ obj.phone|cut:' '|cut:'+'|cut:'-' }}?text=Hola%20{{ obj.full_name }}%2C%20revisamos%20tu%20solicitud%20de%20{{ obj.vehicle_make }}%20{{ obj.vehicle_model }}">{{ obj.phone }} — Abrir chat</a></div>
+</div>
+{% endblock %}

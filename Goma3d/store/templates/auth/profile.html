@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Mi perfil — Gflex3D{% endblock %}
+{% block extra_css %}
+<style>
+.profile-wrap{max-width:780px;margin:0 auto;padding:48px;}
+.profile-title{font-family:'Bebas Neue',sans-serif;font-size:42px;margin-bottom:4px;}
+.profile-sub{color:var(--gray);font-size:14px;margin-bottom:36px;}
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:20px;}
+.card-section-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.quick-links{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;}
+.quick-link{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;text-decoration:none;color:var(--white);transition:border-color .2s,background .2s;display:flex;flex-direction:column;gap:4px;min-width:160px;}
+.quick-link:hover{border-color:var(--orange);background:rgba(255,92,0,.06);}
+.quick-link-icon{font-size:24px;}
+.quick-link-label{font-size:13px;font-weight:600;}
+.quick-link-sub{font-size:11px;color:var(--gray);}
+@media(max-width:600px){.profile-wrap{padding:24px;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="profile-wrap">
+  <h1 class="profile-title">MI CUENTA</h1>
+  <p class="profile-sub">Hola, {{ user.first_name|default:user.username }}. Gestiona tu perfil y pedidos desde aquí.</p>
+
+  <div class="quick-links">
+    <a href="{% url 'my_orders' %}" class="quick-link">
+      <span class="quick-link-icon">📦</span>
+      <span class="quick-link-label">Mis pedidos</span>
+      <span class="quick-link-sub">Ver historial</span>
+    </a>
+    <a href="{% url 'catalog' %}" class="quick-link">
+      <span class="quick-link-icon">🛒</span>
+      <span class="quick-link-label">Catálogo</span>
+      <span class="quick-link-sub">Seguir comprando</span>
+    </a>
+    <a href="{% url 'custom_order' %}" class="quick-link">
+      <span class="quick-link-icon">📐</span>
+      <span class="quick-link-label">Pedir a medida</span>
+      <span class="quick-link-sub">Cotización gratis</span>
+    </a>
+    <a href="{% url 'logout' %}" class="quick-link" style="border-color:rgba(239,68,68,.3);">
+      <span class="quick-link-icon">🚪</span>
+      <span class="quick-link-label" style="color:#ef4444;">Cerrar sesión</span>
+      <span class="quick-link-sub">Hasta luego</span>
+    </a>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="profile-card">
+      <div class="card-section-title">👤 Datos personales</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre *</label>
+          <input class="form-input" type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Apellido</label>
+          <input class="form-input" type="text" name="last_name" value="{{ form.last_name.value|default:'' }}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input class="form-input" type="email" name="email" value="{{ form.email.value|default:'' }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input class="form-input" type="tel" name="phone" value="{{ form.phone.value|default:'' }}" placeholder="+56 9 XXXX XXXX">
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="card-section-title">📦 Dirección de envío guardada</div>
+      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">Se autocompletará en tu próximo checkout.</p>
+      <div class="form-group">
+        <label class="form-label">Dirección</label>
+        <textarea class="form-input" name="address" rows="2" placeholder="Av. Providencia 1234, Depto 5B">{{ form.address.value|default:'' }}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ciudad</label>
+          <input class="form-input" type="text" name="city" value="{{ form.city.value|default:'' }}" placeholder="Santiago">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Región</label>
+          <select class="form-input" name="region">
+            {% for val, label in form.fields.region.widget.choices %}
+            <option value="{{ val }}" {% if form.region.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="max-width:200px;">
+        <label class="form-label">Código postal</label>
+        <input class="form-input" type="text" name="postal_code" value="{{ form.postal_code.value|default:'' }}" placeholder="7500000">
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary" style="padding:14px 32px;font-size:15px;">
+      Guardar cambios
+    </button>
+  </form>
+</div>
+{% endblock %}
