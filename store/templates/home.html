@@ -2,47 +2,189 @@
 {% block title %}Gflex3D — Repuestos en Poliuretano y Caucho{% endblock %}
 {% block extra_css %}
 <style>
+/* ── Keyframes ─────────────────────────────────────────────────────────── */
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
-@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-10px) rotate(5deg)}}
 @keyframes floatB{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:0;padding:140px 48px 80px;position:relative;}
-.hero::after{content:'';position:absolute;top:0;right:0;width:55%;height:100%;background:radial-gradient(ellipse at 70% 40%,rgba(255,92,0,.12) 0%,transparent 65%);pointer-events:none;}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,92,0,.12);border:1px solid rgba(255,92,0,.3);color:var(--orange);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px;}
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+.hero{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  gap:0;
+  padding:140px 48px 80px;
+  position:relative;
+  overflow:hidden;
+}
+/* Full-bleed background photo */
+.hero-bg{
+  position:absolute;inset:0;
+  background-image:url('https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=1800&auto=format&fit=crop&q=70');
+  background-size:cover;
+  background-position:center 40%;
+  filter:brightness(.28) saturate(.6);
+  z-index:0;
+  transition:transform 8s ease;
+}
+.hero:hover .hero-bg{transform:scale(1.03);}
+/* Gradient overlays */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,rgba(10,10,11,.97) 38%,rgba(10,10,11,.55) 70%,rgba(10,10,11,.2) 100%);
+  z-index:1;pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;
+  top:0;right:0;width:55%;height:100%;
+  background:radial-gradient(ellipse at 70% 40%,rgba(255,92,0,.14) 0%,transparent 65%);
+  z-index:1;pointer-events:none;
+}
+.hero-content{position:relative;z-index:2;}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,92,0,.12);border:1px solid rgba(255,92,0,.3);
+  color:var(--orange);border-radius:20px;padding:5px 14px;
+  font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:28px;
+  animation:fadeInUp .6s ease both;
+}
 .hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 2s infinite;}
-.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,8vw,110px);line-height:.92;letter-spacing:1px;margin-bottom:28px;}
+.hero-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(64px,8vw,110px);
+  line-height:.92;letter-spacing:1px;margin-bottom:28px;
+  animation:fadeInUp .7s .1s ease both;
+}
 .hero-title .accent{color:var(--orange);}
 .hero-title .outline{-webkit-text-stroke:1px rgba(245,243,239,.3);color:transparent;}
-.hero-desc{color:var(--gray-light);font-size:16px;line-height:1.7;max-width:480px;margin-bottom:36px;}
-.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px;}
-.hero-stats{display:flex;gap:36px;}
+.hero-desc{
+  color:var(--gray-light);font-size:16px;line-height:1.7;
+  max-width:480px;margin-bottom:36px;
+  animation:fadeInUp .7s .2s ease both;
+}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px;animation:fadeInUp .7s .3s ease both;}
+.hero-stats{display:flex;gap:36px;animation:fadeInUp .7s .4s ease both;}
 .stat-val{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--white);}
 .stat-label{font-size:11px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;}
-.hero-visual{position:relative;display:flex;align-items:center;justify-content:center;}
-.hero-glow{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(255,92,0,.15) 0%,transparent 65%);border-radius:50%;}
-.hero-model{font-size:180px;animation:float 4s ease-in-out infinite;position:relative;z-index:1;filter:drop-shadow(0 0 60px rgba(255,92,0,.3));}
-.hero-tag-float{position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-size:12px;display:flex;align-items:center;gap:10px;animation:floatB 3s ease-in-out infinite;}
-.hero-tag-float.tl{top:20%;left:0;animation-delay:0s;}
-.hero-tag-float.br{bottom:25%;right:0;animation-delay:1.5s;}
-.tag-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);}
-.categories-strip{padding:80px 48px;}
+
+/* ── Hero visual (right column) ────────────────────────────────────────── */
+.hero-visual{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+  animation:scaleIn .9s .2s ease both;
+}
+.hero-img-frame{
+  width:100%;max-width:520px;
+  aspect-ratio:4/5;
+  border-radius:24px;
+  overflow:hidden;
+  border:1px solid rgba(255,92,0,.2);
+  box-shadow:0 0 80px rgba(255,92,0,.12),0 40px 80px rgba(0,0,0,.5);
+  position:relative;
+}
+.hero-img-frame img{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center;
+  display:block;
+  transition:transform .6s ease;
+}
+.hero-img-frame:hover img{transform:scale(1.04);}
+/* Orange accent bar on the frame */
+.hero-img-frame::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--orange),#ff8c42);
+}
+.hero-tag-float{
+  position:absolute;
+  background:rgba(17,18,20,.88);
+  backdrop-filter:blur(12px);
+  border:1px solid var(--border);
+  border-radius:12px;padding:12px 16px;
+  font-size:12px;display:flex;align-items:center;gap:10px;
+  animation:floatB 3s ease-in-out infinite;
+  z-index:3;
+}
+.hero-tag-float.tl{top:12%;left:-16px;animation-delay:0s;}
+.hero-tag-float.br{bottom:14%;right:-16px;animation-delay:1.5s;}
+.tag-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+
+/* ── Section commons ────────────────────────────────────────────────────── */
 .section-eyebrow{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:12px;}
 .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4vw,56px);margin-bottom:40px;}
-.categories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
-.cat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;cursor:pointer;transition:border-color .3s,transform .3s;position:relative;overflow:hidden;text-decoration:none;color:var(--white);}
-.cat-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);transform:scaleX(0);transition:transform .3s;}
-.cat-card:hover{transform:translateY(-4px);border-color:rgba(255,92,0,.4);}
-.cat-card:hover::before{transform:scaleX(1);}
-.cat-icon{font-size:32px;margin-bottom:12px;}
+
+/* ── Categories ─────────────────────────────────────────────────────────── */
+.categories-strip{padding:80px 48px;}
+.categories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.cat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  cursor:pointer;transition:border-color .3s,transform .3s,box-shadow .3s;
+  position:relative;text-decoration:none;color:var(--white);
+  display:flex;flex-direction:column;
+}
+.cat-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--orange),#ff8c42);
+  transform:scaleX(0);transition:transform .35s ease;
+}
+.cat-card:hover{transform:translateY(-6px);border-color:rgba(255,92,0,.4);box-shadow:0 20px 48px rgba(0,0,0,.4);}
+.cat-card:hover::after{transform:scaleX(1);}
+/* Category image thumbnail */
+.cat-img{
+  width:100%;height:140px;overflow:hidden;position:relative;
+  background:linear-gradient(135deg,#1a1c20,#22252b);
+}
+.cat-img img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform .5s ease;
+  filter:brightness(.75) saturate(.8);
+}
+.cat-card:hover .cat-img img{transform:scale(1.08);filter:brightness(.9) saturate(1);}
+/* Gradient fade from image into card body */
+.cat-img::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 40%,var(--surface) 100%);
+}
+.cat-body{padding:16px 20px 20px;}
+.cat-icon{font-size:22px;margin-bottom:8px;}
 .cat-name{font-weight:600;font-size:15px;margin-bottom:4px;}
 .cat-count{font-size:12px;color:var(--gray);}
+
+/* ── Products ────────────────────────────────────────────────────────────── */
 .products-section{padding:80px 48px;}
 .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
-.product-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:transform .3s,border-color .3s;cursor:pointer;}
-.product-card:hover{transform:translateY(-4px);border-color:rgba(255,92,0,.4);}
-.product-img{height:200px;display:flex;align-items:center;justify-content:center;font-size:64px;position:relative;background:linear-gradient(135deg,#1e2228,#2a2228);}
-.product-img img{width:100%;height:100%;object-fit:cover;}
-.product-badge{position:absolute;top:12px;left:12px;background:rgba(255,92,0,.15);color:var(--orange);border:1px solid rgba(255,92,0,.3);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
-.product-3d-badge{position:absolute;top:12px;right:12px;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.3);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;}
+.product-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  transition:transform .3s,border-color .3s,box-shadow .3s;cursor:pointer;
+}
+.product-card:hover{transform:translateY(-6px);border-color:rgba(255,92,0,.4);box-shadow:0 24px 56px rgba(0,0,0,.45);}
+.product-img{
+  height:220px;display:flex;align-items:center;justify-content:center;
+  font-size:64px;position:relative;
+  background:linear-gradient(135deg,#1e2228,#2a2228);
+  overflow:hidden;
+}
+.product-img img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform .5s ease;
+  filter:brightness(.85);
+}
+.product-card:hover .product-img img{transform:scale(1.06);filter:brightness(1);}
+/* Subtle gradient over product image bottom */
+.product-img::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:60px;
+  background:linear-gradient(to top,var(--surface),transparent);
+  pointer-events:none;
+}
+.product-badge{position:absolute;top:12px;left:12px;background:rgba(255,92,0,.15);color:var(--orange);border:1px solid rgba(255,92,0,.3);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;z-index:1;}
+.product-3d-badge{position:absolute;top:12px;right:12px;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.3);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;z-index:1;}
 .product-info{padding:20px;}
 .product-category{font-size:10px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
 .product-name{font-weight:600;font-size:16px;margin-bottom:6px;}
@@ -50,24 +192,111 @@
 .product-footer{display:flex;align-items:center;justify-content:space-between;}
 .product-price{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;}
 .product-price small{display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--gray);font-weight:400;margin-top:2px;}
-.btn-add{background:var(--surface2);border:1px solid var(--border);color:var(--white);border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;transition:background .2s,border-color .2s;}
-.btn-add:hover{background:var(--orange);border-color:var(--orange);}
-.custom-section{padding:80px 48px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;border-top:1px solid var(--border);}
+.btn-add{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--white);border-radius:8px;padding:8px 16px;
+  font-size:13px;cursor:pointer;transition:background .2s,border-color .2s,box-shadow .2s;
+}
+.btn-add:hover{background:var(--orange);border-color:var(--orange);box-shadow:0 0 16px rgba(255,92,0,.35);}
+
+/* ── Fallback placeholder when no product image ─────────────────────────── */
+.product-img-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1e2228 0%,#2a2228 50%,#1e2228 100%);
+  background-size:200% 200%;
+  animation:shimmer 4s linear infinite;
+  font-size:56px;
+  opacity:.6;
+}
+
+/* ── Custom order section ────────────────────────────────────────────────── */
+.custom-section{
+  padding:80px 48px;
+  display:grid;grid-template-columns:1fr 1fr;gap:64px;
+  align-items:center;
+  border-top:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+/* Subtle background tint */
+.custom-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 50%,rgba(255,92,0,.05) 0%,transparent 60%);
+  pointer-events:none;
+}
 .custom-eyebrow{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--orange);margin-bottom:12px;}
 .custom-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,4vw,60px);line-height:1;margin-bottom:20px;}
 .custom-desc{color:var(--gray-light);font-size:15px;line-height:1.7;margin-bottom:32px;}
-.custom-features{display:flex;flex-direction:column;gap:12px;}
+.custom-features{display:flex;flex-direction:column;gap:12px;margin-bottom:36px;}
 .custom-feature{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--gray-light);}
-.check{width:20px;height:20px;background:rgba(255,92,0,.15);border:1px solid rgba(255,92,0,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--orange);flex-shrink:0;}
-.custom-form-side{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;}
+.check{
+  width:22px;height:22px;
+  background:rgba(255,92,0,.15);border:1px solid rgba(255,92,0,.3);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:var(--orange);flex-shrink:0;
+}
+/* Visual image panel for custom section */
+.custom-visual{
+  position:relative;border-radius:20px;overflow:hidden;
+  border:1px solid rgba(255,92,0,.15);
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+  aspect-ratio:4/3;
+}
+.custom-visual img{
+  width:100%;height:100%;object-fit:cover;
+  filter:brightness(.7) saturate(.75);
+  transition:transform .6s ease,filter .4s ease;
+}
+.custom-visual:hover img{transform:scale(1.04);filter:brightness(.85) saturate(.9);}
+.custom-visual::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,92,0,.12) 0%,transparent 60%);
+}
+/* Floating badge on custom visual */
+.custom-visual-badge{
+  position:absolute;bottom:20px;left:20px;z-index:2;
+  background:rgba(10,10,11,.85);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,92,0,.3);border-radius:12px;
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+}
+.custom-visual-badge-icon{font-size:28px;}
+.custom-visual-badge-text strong{display:block;font-size:14px;font-weight:600;color:var(--white);}
+.custom-visual-badge-text span{font-size:11px;color:var(--gray);}
+
+/* Form side */
+.custom-form-side{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;z-index:1;}
 .form-title{font-weight:600;font-size:16px;margin-bottom:24px;}
-@media(max-width:900px){.hero{grid-template-columns:1fr;padding:120px 24px 60px;}.hero-visual{display:none;}.custom-section{grid-template-columns:1fr;gap:32px;padding:60px 24px;}.categories-strip,.products-section{padding:60px 24px;}nav{padding:16px 24px;}.nav-links{display:none;}footer{grid-template-columns:1fr 1fr;padding:40px 24px;}.form-row{grid-template-columns:1fr;}.breadcrumb{padding:20px 24px 0;}}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;padding:120px 24px 60px;}
+  .hero-visual{display:none;}
+  .custom-section{grid-template-columns:1fr;gap:32px;padding:60px 24px;}
+  .custom-visual{display:none;}
+  .categories-strip,.products-section{padding:60px 24px;}
+  nav{padding:16px 24px;}
+  .nav-links{display:none;}
+  footer{grid-template-columns:1fr 1fr;padding:40px 24px;}
+  .form-row{grid-template-columns:1fr;}
+  .breadcrumb{padding:20px 24px 0;}
+}
+@media(max-width:600px){
+  .categories-grid{grid-template-columns:1fr 1fr;}
+  .products-grid{grid-template-columns:1fr;}
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- HERO -->
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════════════════ -->
 <section class="hero">
+  <!-- Background photo: industrial car parts manufacturing -->
+  <div class="hero-bg"></div>
+
+  <!-- Left: copy -->
   <div class="hero-content">
     <div class="hero-tag">Fabricación a pedido · Envío Chile</div>
     <h1 class="hero-title">
@@ -86,34 +315,99 @@
       <div><div class="stat-val">7d</div><div class="stat-label">Fabricación</div></div>
     </div>
   </div>
+
+  <!-- Right: product photo frame -->
   <div class="hero-visual">
-    <div class="hero-glow"></div>
-    <div class="hero-model">⚙️</div>
-    <div class="hero-tag-float tl"><div class="tag-dot"></div><span>Poliuretano 80 Shore A</span></div>
-    <div class="hero-tag-float br"><div class="tag-dot"></div><span>Envío a todo Chile</span></div>
+    <div class="hero-img-frame">
+      <!--
+        Unsplash – rubber/polyurethane automotive bushings close-up
+        Photo by Tekton on Unsplash (free commercial use)
+      -->
+      <img
+        src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&auto=format&fit=crop&q=80"
+        alt="Repuestos en poliuretano para vehículos"
+        loading="eager"
+      >
+    </div>
+    <!-- Floating info chips -->
+    <div class="hero-tag-float tl">
+      <div class="tag-dot"></div>
+      <span>Poliuretano 80 Shore A</span>
+    </div>
+    <div class="hero-tag-float br">
+      <div class="tag-dot"></div>
+      <span>Envío a todo Chile</span>
+    </div>
   </div>
 </section>
 
-<!-- CATEGORÍAS -->
+<!-- ═══════════════════════════════════════════════════════════════════════
+     CATEGORÍAS
+════════════════════════════════════════════════════════════════════════ -->
 {% if categories %}
 <section class="categories-strip">
   <div class="section-eyebrow">Explora por tipo</div>
   <div class="section-title">CATEGORÍAS</div>
   <div class="categories-grid">
+
+    {#
+      Category image map — maps slug keywords to representative Unsplash photos.
+      All images are free for commercial use under the Unsplash License.
+      If a category doesn't match any keyword the icon emoji is shown as fallback.
+    #}
     {% for cat in categories %}
+    {% with slug=cat.slug|lower %}
     <a href="{% url 'catalog_category' cat.slug %}" class="cat-card">
-      <div class="cat-icon">
-        {% if cat.icon %}{{ cat.icon }}{% else %}🔩{% endif %}
+
+      <div class="cat-img">
+        {% if 'manguera' in slug or 'hose' in slug %}
+          <!-- Radiator/coolant hoses — Photo by Tim Mossholder, Unsplash -->
+          <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&auto=format&fit=crop&q=70"
+               alt="{{ cat.name }}" loading="lazy">
+
+        {% elif 'buje' in slug or 'bushing' in slug or 'suspension' in slug %}
+          <!-- Suspension / bushings — Photo by Malte Wingen, Unsplash -->
+          <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=70"
+               alt="{{ cat.name }}" loading="lazy">
+
+        {% elif 'tope' in slug or 'motor' in slug or 'mount' in slug %}
+          <!-- Engine / motor mount — Photo by Garett Mizunaka, Unsplash -->
+          <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&auto=format&fit=crop&q=70"
+               alt="{{ cat.name }}" loading="lazy">
+
+        {% elif 'guardapolvo' in slug or 'dust' in slug or 'boot' in slug or 'fuelle' in slug %}
+          <!-- CV boot / dust cover — Photo by Obi Onyeador, Unsplash -->
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop&q=70"
+               alt="{{ cat.name }}" loading="lazy">
+
+        {% elif 'caucho' in slug or 'rubber' in slug or 'goma' in slug %}
+          <!-- Rubber parts — Photo by Possessed Photography, Unsplash -->
+          <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&auto=format&fit=crop&q=70"
+               alt="{{ cat.name }}" loading="lazy">
+
+        {% else %}
+          <!-- Generic automotive parts fallback — Photo by Tekton, Unsplash -->
+          <img src="https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=600&auto=format&fit=crop&q=70"
+               alt="{{ cat.name }}" loading="lazy">
+        {% endif %}
       </div>
-      <div class="cat-name">{{ cat.name }}</div>
-      <div class="cat-count">{{ cat.products.count }} producto{{ cat.products.count|pluralize }}</div>
+
+      <div class="cat-body">
+        <div class="cat-icon">{% if cat.icon %}{{ cat.icon }}{% else %}🔩{% endif %}</div>
+        <div class="cat-name">{{ cat.name }}</div>
+        <div class="cat-count">{{ cat.products.count }} producto{{ cat.products.count|pluralize }}</div>
+      </div>
     </a>
+    {% endwith %}
     {% endfor %}
+
   </div>
 </section>
 {% endif %}
 
-<!-- PRODUCTOS DESTACADOS -->
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PRODUCTOS DESTACADOS
+════════════════════════════════════════════════════════════════════════ -->
 {% if featured_products %}
 <section class="products-section">
   <div class="section-eyebrow">Más vendidos</div>
@@ -124,7 +418,17 @@
       <div class="product-img">
         {% if product.thumbnail %}
           <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}">
-        {% else %}⚙️{% endif %}
+        {% else %}
+          <!--
+            Generic automotive part placeholder when no product image is uploaded.
+            Photo by Tekton on Unsplash (free commercial use).
+          -->
+          <img
+            src="https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=600&auto=format&fit=crop&q=70"
+            alt="{{ product.name }}"
+            loading="lazy"
+          >
+        {% endif %}
         {% if product.status == 'on_request' %}<div class="product-badge">A pedido</div>{% endif %}
         {% if product.get_model_3d %}<div class="product-3d-badge">🔄 3D</div>{% endif %}
       </div>
@@ -143,17 +447,21 @@
     </div>
     {% endfor %}
   </div>
-  <div style="text-align:center;margin-top:40px;">
+  <div style="text-align:center;margin-top:48px;">
     <a href="{% url 'catalog' %}" class="btn-outline" style="padding:13px 32px;">Ver catálogo completo →</a>
   </div>
 </section>
 {% endif %}
 
-<!-- PEDIDO A MEDIDA -->
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PEDIDO A MEDIDA
+════════════════════════════════════════════════════════════════════════ -->
 <section class="custom-section">
+
+  <!-- Left: info + features -->
   <div class="custom-info">
     <div class="custom-eyebrow">Servicio exclusivo</div>
-    <h2 class="custom-title">¿NO ENCUENTRAS TU PIEZA?</h2>
+    <h2 class="custom-title">¿NO ENCUENTRAS<br>TU PIEZA?</h2>
     <p class="custom-desc">Fabricamos cualquier pieza de poliuretano o caucho a tu medida. Solo necesitamos la pieza original, un plano o descripción y la hacemos realidad en días.</p>
     <div class="custom-features">
       <div class="custom-feature"><div class="check">✓</div> Diseño 3D incluido</div>
@@ -161,7 +469,28 @@
       <div class="custom-feature"><div class="check">✓</div> Envío a todo Chile</div>
       <div class="custom-feature"><div class="check">✓</div> Garantía de fabricación</div>
     </div>
+
+    <!--
+      Visual image panel — 3D design / precision manufacturing.
+      Photo by Opt Lasers on Unsplash (free commercial use).
+    -->
+    <div class="custom-visual anim">
+      <img
+        src="https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=900&auto=format&fit=crop&q=75"
+        alt="Diseño 3D y fabricación de repuestos a medida"
+        loading="lazy"
+      >
+      <div class="custom-visual-badge">
+        <div class="custom-visual-badge-icon">🖨️</div>
+        <div class="custom-visual-badge-text">
+          <strong>Fabricación a pedido</strong>
+          <span>Diseño 3D · Poliuretano · Caucho</span>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Right: quick quote form -->
   <div class="custom-form-side">
     <div class="form-title">Solicitar cotización rápida</div>
     <form method="post" action="{% url 'custom_order' %}" enctype="multipart/form-data">
@@ -198,5 +527,6 @@
       </div>
     </form>
   </div>
+
 </section>
 {% endblock %}
