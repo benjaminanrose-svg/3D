@@ -92,7 +92,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── EMAIL ────────────────────────────────────────────────────────────────────
+# ── EMAIL ────────────────────────────────────────────
 EMAIL_HOST          = config('EMAIL_HOST',          default='smtp.gmail.com')
 EMAIL_PORT          = config('EMAIL_PORT',          default=587, cast=int)
 EMAIL_USE_TLS       = config('EMAIL_USE_TLS',       default=True, cast=bool)
@@ -106,7 +106,7 @@ if EMAIL_HOST_USER:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# ── GFLEX3D ──────────────────────────────────────────────────────────────────
+# ── GFLEX3D ──────────────────────────────────────────
 WHATSAPP_NUMBER     = config('WHATSAPP_NUMBER',     default='56912345678')
 STORE_NAME          = config('STORE_NAME',          default='Gflex3D')
 STORE_EMAIL         = config('STORE_EMAIL',         default='pedidos@gflex3d.cl')
@@ -119,29 +119,28 @@ BANK_ACCOUNT_NUMBER = config('BANK_ACCOUNT_NUMBER', default='000-000000-00')
 BANK_ACCOUNT_TYPE   = config('BANK_ACCOUNT_TYPE',   default='Cuenta Corriente')
 BANK_EMAIL          = config('BANK_EMAIL',          default='pagos@gflex3d.cl')
 
-# ── AUTH ──────────────────────────────────────────────────────────────────────
+# ── AUTH ──────────────────────────────────────────────
 LOGIN_URL          = '/cuenta/ingresar/'
 LOGIN_REDIRECT_URL = '/cuenta/perfil/'
 LOGOUT_REDIRECT_URL = '/'
 
-# ── CHILEXPRESS (opcional) ────────────────────────────────────────────────────
-# Agrega tu clave al .env para activar la API real de cotización
+# ── CHILEXPRESS (opcional) ──────────────────────────────
 CHILEXPRESS_API_KEY = config('CHILEXPRESS_API_KEY', default='')
 
-# ── SITEMAP ──────────────────────────────────────────────────────────────────
+# ── SITEMAP ──────────────────────────────────────────
 SITE_ID = 1
 
-# ── WHITENOISE (archivos estáticos en producción) ────────────────────────────
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# ── WHITENOISE (archivos estáticos en producción) ────────────────────
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
 
-# ── HANDLERS DE ERROR ─────────────────────────────────────────────────────────
+# ── HANDLERS DE ERROR ───────────────────────────────────────────
 handler404 = 'store.views.error_404'
 handler500 = 'store.views.error_500'
 
-# ── MERCADOPAGO ───────────────────────────────────────────────────────────────
-# Obtén tus claves en https://www.mercadopago.cl/developers/panel
-# ACCESS_TOKEN de prueba empieza con TEST-
-# ACCESS_TOKEN de producción empieza con APP_USR-
+# ── MERCADOPAGO ─────────────────────────────────────────────
 MP_ACCESS_TOKEN = config('MP_ACCESS_TOKEN', default='')
 MP_WEBHOOK_SECRET = config('MP_WEBHOOK_SECRET', default='')   # firma HMAC del webhook
 SITE_DOMAIN = config('SITE_DOMAIN', default='http://127.0.0.1:8000')  # sin / al final
