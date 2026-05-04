@@ -122,9 +122,7 @@
     {% for product in featured_products %}
     <div class="product-card" onclick="window.location='{% url 'product_detail' product.slug %}'">
       <div class="product-img">
-        {% if product.thumbnail %}
-          <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}">
-        {% else %}⚙️{% endif %}
+        ⚙️
         {% if product.status == 'on_request' %}<div class="product-badge">A pedido</div>{% endif %}
         {% if product.get_model_3d %}<div class="product-3d-badge">🔄 3D</div>{% endif %}
       </div>
