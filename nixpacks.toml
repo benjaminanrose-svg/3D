@@ -5,4 +5,4 @@ cmds = [
 ]
 
 [start]
-cmd = "python manage.py migrate --noinput && gunicorn config.wsgi --log-file -"
+cmd = "python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 30 --log-file - --access-logfile -"
