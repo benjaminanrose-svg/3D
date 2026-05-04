@@ -25,7 +25,12 @@ def robots_txt(request):
     return HttpResponse('\n'.join(lines), content_type='text/plain')
 
 
+def health_check(request):
+    return HttpResponse('OK', status=200)
+
+
 urlpatterns = [
+    path('health/', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     path('', include('store.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},
