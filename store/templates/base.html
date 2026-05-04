@@ -144,11 +144,8 @@ select.form-input option{background:var(--dark);}
       <span style="color:var(--gray)">Subtotal</span>
       <span class="cart-total-amount" id="cartTotalAmt">${{ cart_total|floatformat:0 }}</span>
     </div>
-    <a href="{% url 'checkout' %}" class="btn-primary" style="width:100%;padding:14px;font-size:15px;text-align:center;display:block;">
-      Ir a pagar →
-    </a>
-    <a href="{% url 'whatsapp_order' %}" class="btn-outline" style="width:100%;padding:12px;margin-top:8px;font-size:13px;text-align:center;display:block;">
-      📱 Pedir por WhatsApp
+    <a href="{% url 'whatsapp_order' %}" class="btn-primary" style="width:100%;padding:14px;font-size:15px;text-align:center;display:block;">
+      💬 Solicitar cotización por WhatsApp
     </a>
   </div>
 </div>

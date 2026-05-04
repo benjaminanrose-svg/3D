@@ -231,12 +231,14 @@ def cart_data(request):
                    'variant': str(i['variant']) if i['variant'] else ''} for i in items]})
 
 def whatsapp_order(request):
-    items, total, _ = _cart_summary(request)
+    items, _, _ = _cart_summary(request)
     if not items: return redirect('home')
-    lines = ['🛒 *Pedido Gflex3D*\n']
+    lines = ['Hola Gflex3D, quiero cotizar los siguientes productos:\n']
     for i in items:
-        lines.append(f"• {i['product'].name} x{i['qty']} — ${i['subtotal']:,.0f}")
-    lines.append(f"\n*Total: ${total:,.0f}*\nQuiero confirmar este pedido.")
+        variant = f" ({i['variant']})" if i['variant'] else ''
+        notes   = f" — {i['notes']}" if i.get('notes') else ''
+        lines.append(f"• {i['product'].name}{variant} x{i['qty']}{notes}")
+    lines.append('\n¿Me pueden dar el precio y disponibilidad? Gracias.')
     return redirect(f"https://wa.me/{settings.WHATSAPP_NUMBER}?text={urllib.parse.quote(chr(10).join(lines))}")
 
 
